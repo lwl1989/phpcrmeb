@@ -200,9 +200,9 @@ class EventRegistration extends AuthController
                     $img = array_merge($img, $arr);
                 }
             }
-            $this->assign('img', $img);
+            $this->assign('img', json_encode($img));
         } else {
-            $this->assign('img', ['image' => '', 'prize' => '', 'group' => '', 'name' => '', 'project' => '', 'area' => '']);
+            $this->assign('img', json_encode(['image' => '', 'prize' => '', 'group' => '', 'name' => '', 'project' => '', 'area' => '']));
         }
         $this->assign('event_id', $id);
         return $this->fetch('view_staff_image');
