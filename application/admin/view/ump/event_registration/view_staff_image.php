@@ -170,7 +170,7 @@
 {/block}
 {block name="script"}
 <script>
-    var id = {$id}, news = {$img};
+    var id = {$event_id}, news = {$img};
     require(['vue', 'zh-cn', 'request', 'aliyun-oss', 'plupload', 'OssUpload'], function (Vue) {
         new Vue({
             el: "#app",
@@ -282,20 +282,10 @@
                         a: 'image_template',
                     }), that.formData, function (res) {
                         layList.loadClear();
-                        if (parseInt(id) == 0) {
-                            layList.layer.confirm('添加成功,您要继续添加活动吗?', {
-                                btn: ['继续添加', '立即提交'] //按钮
-                            }, function () {
-                                window.location.reload();
-                            }, function () {
-                                parent.layer.closeAll();
-                            });
-                        } else {
-                            layList.msg('修改成功', function () {
-                                parent.layer.closeAll();
-                                window.location.reload();
-                            })
-                        }
+                        layList.msg('修改成功', function () {
+                            parent.layer.closeAll();
+                            window.location.reload();
+                        })
                     }, function (res) {
                         layList.msg(res.msg);
                         layList.loadClear();
@@ -306,8 +296,9 @@
                     if (parseInt(id) == 0) {
                         if (that.formData.image) return layList.msg('请先删除上传的图片在尝试取消');
                         parent.layer.closeAll();
+                    }else {
+                        parent.layer.closeAll();
                     }
-                    parent.layer.closeAll();
                 }
             },
             mounted: function () {
