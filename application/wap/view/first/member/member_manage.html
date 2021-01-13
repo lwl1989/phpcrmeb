@@ -1,0 +1,274 @@
+{extend name="public/container"}
+{block name="title"}会员管理{/block}
+{block name="content"}
+<div v-cloak id="app">
+<div class="member-manage card-active">
+    <!-- 会员卡 -->
+    <div v-if="type === 1" class="wrapper card">
+        <div class="user">
+            <img :src="userInfo.avatar">
+            <div class="name" v-text="userInfo.nickname"></div>
+            <div class="btn" v-if="userInfo.level>0 && userInfo.is_permanent!=1" @click="buyMembers">续费会员</div>
+            <div class="btn" v-else-if="userInfo.is_permanent!=1" @click="buyMembers">购买会员</div>
+        </div>
+        <div class="time" v-if="userInfo.level>0 && userInfo.surplus>0 && userInfo.is_permanent==0">
+            <span class="knowledge iconshijian1"></span>您的会员还剩{{userInfo.surplus}}天
+        </div>
+        <div class="time" v-else-if="userInfo.level>0  && userInfo.is_permanent==1">
+            <span class="knowledge iconshijian1"></span>您是永久会员
+        </div>
+        <div class="time" v-else>
+            <span class="knowledge iconshijian1"></span>您还不是会员
+        </div>
+    </div>
+    <!-- 激活会员卡 -->
+    <div v-else class="wrapper form">
+        <div class="title">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#iconhuiyuan1"></use>
+            </svg>
+            <div class="name">激活会员卡</div>
+        </div>
+        <div class="content">
+            <label>
+                <span class="iconfont iconqiahao"></span>
+                <input type="text" v-model="member_code" placeholder="请输入卡号">
+            </label>
+            <label>
+                <span class="iconfont iconkahao"></span>
+                <input type="password" v-model="member_pwd" placeholder="请输入卡密">
+            </label>
+            <button @click="activation">确认激活</button>
+        </div>
+    </div>
+    <!-- 会员权益 -->
+    <div class="wrapper rights">
+        <div class="title">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#iconhuiyuan"></use>
+            </svg>
+            <span>会员专享权益</span>
+        </div>
+        <ul>
+            <li v-for="item in data.interests">
+                <img :src="item.pic">
+                <div class="name">{{item.name}}</div>
+                <div class="info">{{item.explain}}</div>
+            </li>
+        </ul>
+    </div>
+    <!-- 会员说明 -->
+    <div class="wrapper explain">
+        <div class="title">
+            <svg class="icon" aria-hidden="true">
+                <use xlink:href="#iconquanyi"></use>
+            </svg>
+            <span>会员说明</span>
+        </div>
+        <ol>
+            <li v-for="item in data.description">{{item.text}}</li>
+        </ol>
+    </div>
+    <div v-if="type === 1 && userInfo.is_permanent!=1" class="btn-wrapper" v-cloak="">
+        <button class="pay" @click="buyMembers" v-if="userInfo.level>0 && member">会员续费¥{{member.price}}/{{member.unit}}</button>
+        <button class="pay" @click="buyMembers" v-else-if="member">开通会员¥{{member.price}}/{{member.unit}}</button>
+        <button class="try" v-if="is_record==0 && free.id>0" @click="purchase(free.id)">点击可免费试用{{free.vip_day}}天</button>
+    </div>
+    <div v-if="type === 1 && userInfo.is_permanent!=1" class="tip-wrapper">已有卡密兑换会员，<button @click="popupShow = true">点击兑换</button></div>
+    <!-- 卡密弹窗 -->
+    <div v-if="popupShow" class="popup-mask" @click="close"></div>
+    <div class="popup-active" :class="{ active: popupShow }">
+        <button class="iconfont icon-guanbi" @click="close"></button>
+        <div class="popup-bd">
+            <input type="text" v-model="member_code" placeholder="请输入卡号">
+            <input type="password" v-model="member_pwd" placeholder="请输入卡密">
+        </div>
+        <div class="popup-ft">
+            <button @click="activation">确认激活</button>
+        </div>
+    </div>
+</div>
+<enter :appear="appear" @change="changeVal" :url="url" :site_name="site_name"></enter>
+<shortcut></shortcut>
+</div>
+{/block}
+{block name='foot'}
+<script>
+    var site_name = '{$Auth_site_name}';
+    var type = {$type};
+    var bid = {$bid};
+    var isWechat={$isWechat ? 'true' : 'false'};
+    require(['vue', 'helper', 'store', '{__WAP_PATH}zsff/js/enter.js', '{__WAP_PATH}zsff/js/shortcut.js'], function (Vue, $h, app) {
+        new Vue({
+            el: '#app',
+            data: {
+                type: type,
+                popupShow: false,
+                appear: true,
+                site_name: site_name,
+                userInfo:{},
+                data:[],
+                member_code:'',
+                member_pwd:'',
+                member:[],
+                free:[],
+                surplus:0,
+                is_record:0,
+                isWechat:isWechat,
+                url:isWechat ? $h.U({c:'index',a:'login'}):$h.U({c:'login',a:'phone_check'})
+            },
+            beforeCreate: function () {
+                document.body.style.backgroundColor = '#f5f5f5';
+            },
+            beforeDestroy: function () {
+                document.body.style.backgroundColor = '';
+            },
+            mounted: function () {
+                this.userinfo();
+                this.memberData();
+            },
+            methods: {
+                getLogin:function(){
+                    app.baseGet($h.U({c:'index',a:'user_login'}),function (res) {
+                        this.appear=true;
+                    }.bind(this),function (res) {
+                        this.appear=false;
+                        return false;
+                    }.bind(this));
+                },
+                userinfo:function(){
+                    var that=this;
+                    app.baseGet($h.U({ c: 'auth_api', a: 'userInfo' }), function (res) {
+                        that.userInfo=res.data.data;
+                    });
+                },
+                memberData:function(){
+                    var that=this;
+                    app.baseGet($h.U({ c: 'auth_api', a: 'merberDatas' }), function (res) {
+                        that.data=res.data.data;
+                        that.member=res.data.data.member;
+                        that.free=res.data.data.freeData.free;
+                        that.is_record=res.data.data.freeData.is_record;
+                    });
+                },
+                buyMembers:function(){
+                    app.baseGet($h.U({c:'index',a:'user_login'}),function (res) {
+                        this.appear=true;
+                        window.location.href = $h.U({
+                            c: 'special',
+                            a: 'member_recharge'
+                        });
+                    }.bind(this),function (res) {
+                        this.appear=false;
+                        return false;
+                    }.bind(this));
+
+                },
+                close: function () {
+                    this.popupShow = false
+                },
+                getUrlStr: function () {
+                    var queryStr = {};
+                    location.search.replace(/([^?&=]+)=([^&]+)/g, function (_, k, v) {
+                        queryStr[k] = v;
+                    });
+                    return queryStr;
+                },
+                activation:function(){
+                    var that=this;
+                    app.baseGet($h.U({c:'index',a:'user_login'}),function (res) {
+                        that.appear=true;
+                        if(!that.member_code) return $h.pushMsgOnce('请输入卡号');
+                        if(!that.member_pwd) return $h.pushMsgOnce('请输入密码');
+                        $h.loadFFF();
+                        app.basePost($h.U({c:'auth_api',a:'confirm_activation'}),{member_code:that.member_code,member_pwd:that.member_pwd},function (res) {
+                            $h.loadClear();
+                            $h.showMsg({
+                                title:res.data.msg,
+                                icon:'success',
+                                success:function (){
+                                    location.reload();
+                                }
+                            });
+                        },function () {
+                            $h.loadClear();
+                        });
+                    }.bind(this),function (res) {
+                        that.appear=false;
+                        return false;
+                    }.bind(this));
+
+                },
+                purchase:function(id){
+                    var that=this;
+                    app.baseGet($h.U({c:'index',a:'user_login'}),function (res) {
+                        that.appear=true;
+                        $h.load();
+                        app.baseGet($h.U({ c: 'auth_api', a: 'memberPurchase',p:{id:id} }), function (res) {
+                            that.$set(that,'orderId',res.data.data.result.orderId);
+                            $h.loadClear();
+                            if(res.data.data.status == 'WECHAT_PAY'){
+                                that.wechatPay(res.data.data.result.jsConfig);
+                            }else if(res.data.data.status == 'SUCCESS'){
+                                $h.pushMsgOnce(res.data.msg,function(){
+                                    that.successOrder();
+                                });
+                            }else{
+                                $h.pushMsgOnce(res.data.msg,function(){
+                                    that.extendOrder();
+                                });
+                            }
+                        });
+                    }.bind(this),function (res) {
+                        that.appear=false;
+                        return false;
+                    }.bind(this));
+                },
+                wechatPay:function(config){
+                    var that = this;
+                    mapleWx($jssdk(),function(){
+                        this.chooseWXPay(config,function(){
+                            that.successOrder();
+                        },{
+                            fail:that.extendOrder,
+                            cancel:that.extendOrder
+                        });
+                    });
+                },
+                successOrder:function(msg){
+                    var that=this;
+                    $h.showMsg({
+                        title:msg ? msg :'领取成功',
+                        icon:'success',
+                        success:function (){
+                            location.reload();
+                        }
+                    });
+                },
+                extendOrder:function(msg){
+                    var that=this;
+                    location.reload();
+                },
+                enter: function () {
+                    this.appear = false;
+                },
+                //关闭登录
+                loginClose:function(value){
+                    this.appear=value;
+                },
+                //登录完成回调事件
+                logComplete:function(){
+                    this.appear=true;
+                },
+                //所有插件回调处理事件
+                changeVal: function (opt) {
+                    if (typeof opt != 'object') opt = {};
+                    var action = opt.action || '';
+                    var value = opt.value || '';
+                    this[action] && this[action](value);
+                }
+            }
+        });
+    });
+</script>
+{/block}

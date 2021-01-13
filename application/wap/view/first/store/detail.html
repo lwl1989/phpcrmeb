@@ -1,0 +1,157 @@
+{extend name="public/container"}
+{block name="title"}商品详情{/block}
+{block name="head_top"}
+<style>
+    body {
+        padding-bottom: 1.2rem;
+        background-color: #f5f5f5;
+    }
+
+    .goods-detail .swiper-container img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+    }
+</style>
+{/block}
+{block name="content"}
+<div v-cloak id="app">
+    <div class="goods-detail">
+        <div class="header">
+            <div id="carousel" class="swiper-container" :style="{ height: carouselHeight + 'px' }">
+                <div class="swiper-wrapper">
+                    <div v-for="(item, index) in storeInfo.slider_image" :key="index" class="swiper-slide">
+                        <img :src="item" />
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+            <div class="text">
+                <div class="name">{{ storeInfo.store_name }}</div>
+                <div class="group">
+                    <div class="money">
+                        <div class="price">￥<span class="num">{{ storeInfo.price }}</span></div>
+                        <div class="vip-price">￥{{ storeInfo.vip_price }}<img class="img" src="/wap/first/zsff/images/vip.png"></div>
+                    </div>
+                    <div class="sale">销量：{{ storeInfo.ficti ? storeInfo.ficti : storeInfo.sales }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="name">商品详情</div>
+            <div class="cont" v-html="storeInfo.description"></div>
+        </div>
+        <div class="footer">
+            <div class="group">
+                <a class="link" href="{:Url('wap/index/index')}">
+                    <div class="image">
+                        <img class="img" src="/wap/first/zsff/images/special01.png">
+                    </div>
+                    <div class="name">首页</div>
+                </a>
+                <a class="link" href="{:Url('service/service_list')}">
+                    <div class="image">
+                        <img class="img" src="{__WAP_PATH}zsff/images/special02.png">
+                    </div>
+                    <div class="name">客服</div>
+                </a>
+            </div>
+            <button class="button" type="button" @click="cardUp">立即购买</button>
+        </div>
+    </div>
+    <enter :appear="appear" @change="changeVal" :url="url" :site_name="site_name"></enter>
+    <shortcut></shortcut>
+</div>
+<script>
+    var storeInfo = {$storeInfo};
+    var site_name = '{$Auth_site_name}';
+    var isWechat={$isWechat ? 'true' : 'false'};
+    require(['vue', 'store', 'helper', '{__WAP_PATH}zsff/js/enter.js', '{__WAP_PATH}zsff/js/shortcut.js'], function (Vue, api, $h) {
+        var app = new Vue({
+            el: '#app',
+            data: {
+                storeInfo: storeInfo ? storeInfo : [],
+                screenWidth: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                appear: true,
+                isWechat:isWechat,
+                url:isWechat ? $h.U({c:'index',a:'login'}):$h.U({c:'login',a:'phone_check'})
+            },
+            computed: {
+                carouselHeight: function () {
+                    return this.screenWidth * 42 / 75;
+                }
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    this.initCarousel();
+                    this.initResize();
+                });
+            },
+            destroyed: function () {
+                window.onresize = null;
+                this.carousel.destroy();
+            },
+            methods: {
+                initCarousel: function () {
+                    this.carousel = new Swiper('#carousel', {
+                        autoplay: 3000,
+                        pagination: '.swiper-pagination',
+                        paginationClickable: true,
+                        loop: true,
+                        observer: true,
+                        observeParents: true,
+                        onInit: function (swiper) {
+                            if (swiper.slides.length <= 3) {
+                                swiper.lockSwipes();
+                                swiper.params.pagination = null;
+                            }
+                        }
+                    });
+                },
+                initResize: function () {
+                    window.onresize = function () {
+                        this.screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+                    }.bind(this);
+                },
+                cardUp: function () {
+                    api.baseGet($h.U({c:'index',a:'user_login'}),function (res) {
+                        this.appear=true;
+                        api.goBuy({
+                            productId: this.storeInfo.id,
+                            cartNum: 1,
+                            uniqueId: '',
+                        }, function (cartId) {
+                            //location.href = $h.U({ c: 'special', a: 'confirm_order', p: { cartId: cartId } });
+                            location.href = "{:url('wap/special/confirm_order')}?cartId="+cartId;
+                        });
+                    }.bind(this),function (res) {
+                        this.appear=false;
+                        return false;
+                    }.bind(this));
+
+                },
+                enter: function () {
+                    this.appear = false;
+                },
+                //关闭登录
+                loginClose:function(value){
+                    this.appear=value;
+                },
+                //登录完成回调事件
+                logComplete:function(){
+                    this.appear=true;
+                },
+                //所有插件回调处理事件
+                changeVal: function (opt) {
+                    if (typeof opt != 'object') opt = {};
+                    var action = opt.action || '';
+                    var value = opt.value || '';
+                    this[action] && this[action](value);
+                }
+            }
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,167 @@
+{extend name="public/container"}
+{block name="title"}会员充值{/block}
+{block name="content"}
+<div v-cloak id="app" class="member-recharge">
+    <div class="user">
+        <img :src="userInfo.avatar">
+        <div class="name" v-text="userInfo.nickname"></div>
+        <div class="time" v-if="userInfo.level>0 && userInfo.surplus>0 && userInfo.is_permanent==0">
+            <span class="iconfont iconshijian1"></span>您的会员还剩{{userInfo.surplus}}天
+        </div>
+        <div class="time" v-else-if="userInfo.level>0  && userInfo.is_permanent==1">
+            <span class="iconfont iconshijian1"></span>您是永久会员
+        </div>
+        <div class="time" v-else>
+            <span class="iconfont iconshijian1"></span>您还不是会员
+        </div>
+    </div>
+    <!-- 会员期限选择 -->
+    <div class="limit">
+        <div class="titles">会员期限选择</div>
+        <ul>
+            <li v-for="(item, index) in membershipList" :key="index">
+                <div class="text">
+                    <div class="price">
+                        ¥ <span class="number">{{item.price}}</span><span v-if="item.sale>0">优惠¥{{item.sale}}</span>
+                    </div>
+                    <div class="info">{{item.title}}会员¥{{item.original_price}}</div>
+                </div>
+                <button class="btn" @click="purchase(item)">购买</button>
+            </li>
+        </ul>
+        <div class="service" v-if="servicePhone">
+            <span class="iconfont iconkefu"></span>
+            联系客服
+            <a :href="`tel:${servicePhone}`">{{servicePhone}}</a>
+        </div>
+        <payment @change="changeVal" :payment="payment"  :money="money" :isyue="is_yue" :special_id="id" :iswechat="isWechat"  :pay_type_num="pay_type_num" ></payment>
+        <enter :appear="appear" @change="changeVal" :url="url" :site_name="site_name"></enter>
+        <shortcut></shortcut>
+    </div>
+</div>
+{/block}
+{block name='foot'}
+<script>
+    var site_name = '{$Auth_site_name}';
+    var servicePhone = '{$servicePhone}',isWechat={$isWechat ? 'true' : 'false'},is_yue=false;
+    require(['vue', 'helper', 'store','{__WAP_PATH}zsff/js/payment.js', '{__WAP_PATH}zsff/js/enter.js', '{__WAP_PATH}zsff/js/shortcut.js'], function (Vue, $h, app) {
+        new Vue({
+            el: '#app',
+            data: {
+                vipType: [],
+                servicePhone: servicePhone,
+                appear: true,
+                site_name: site_name,
+                userInfo:{},
+                membershipList:[],
+                orderId:'',
+                payment:true,
+                id:0,
+                money:0,
+                isWechat:isWechat,
+                pay_type_num:10,
+                is_yue:is_yue, //余额是否开启
+                url:isWechat ? $h.U({c:'index',a:'login'}):$h.U({c:'login',a:'phone_check'})
+            },
+            mounted: function () {
+                this.userinfo();
+                this.getMembershipList();
+            },
+            methods: {
+                userinfo:function(){
+                    var that=this;
+                    app.baseGet($h.U({ c: 'auth_api', a: 'userInfo' }), function (res) {
+                        that.userInfo=res.data.data;
+                    });
+                },
+                getMembershipList:function(){
+                    var that=this;
+                    app.baseGet($h.U({ c: 'auth_api', a: 'membershipLists' }), function (res) {
+                        that.membershipList=res.data.data;
+                    });
+                },
+                purchase:function(item){
+                    var that=this;
+                    app.baseGet($h.U({c:'index',a:'user_login'}),function (res) {
+                        that.appear=true;
+                        that.id=item.id;
+                        that.money=item.price;
+                        that.payment=false;
+                    }.bind(this),function (res) {
+                        that.appear=false;
+                        return false;
+                    }.bind(this));
+                },
+                pay_order:function(data){
+                    this.orderId=data.result.orderId || '';
+                    switch (data.status){
+                        case "PAY_ERROR":case 'ORDER_EXIST':case 'ORDER_ERROR':
+                            this.extendOrder(data.msg);
+                            break;
+                        case 'WECHAT_PAY':
+                            this.wechatPay(data.result.jsConfig);
+                            break;
+                        case 'SUCCESS':
+                            this.successOrder(data.msg);
+                            break;
+                        case 'ZHIFUBAO_PAY':
+                            window.location.href=$h.U({c:'Alipay',a:'index',q:{info:data.result,params:'member'}});
+                            break;
+                    }
+                },
+                wechatPay:function(config){
+                    var that = this;
+                    mapleWx($jssdk(),function(){
+                        this.chooseWXPay(config,function(){
+                            that.successOrder();
+                        },{
+                            fail:that.extendOrder,
+                            cancel:that.extendOrder
+                        });
+                    });
+                },
+                successOrder:function(msg){
+                    $h.showMsg({
+                        title:msg ? msg :'支付成功',
+                        icon:'success',
+                        success:function (){
+                             window.location.href=$h.U({c:'special',a:'member_manage'});
+                        }
+                    });
+                },
+                extendOrder:function(msg){
+                    var msg = msg ? msg : '支付失败';
+                    $h.showMsg({
+                        title: typeof msg == 'object' ? '支付失败' : msg,
+                        success: function () {
+                            location.reload();
+                        }
+                    })
+                },
+                enter: function () {
+                    this.appear = false;
+                },
+                //关闭登录
+                loginClose:function(value){
+                    this.appear=value;
+                },
+                //登录完成回调事件
+                logComplete:function(){
+                    this.appear=true;
+                },
+                //关闭支付
+                payClose:function(value){
+                    this.payment=value;
+                },
+                //所有插件回调处理事件
+                changeVal: function (opt) {
+                    if (typeof opt != 'object') opt = {};
+                    var action = opt.action || '';
+                    var value = opt.value || '';
+                    this[action] && this[action](value);
+                },
+            }
+        });
+    });
+</script>
+{/block}

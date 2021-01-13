@@ -1,0 +1,24 @@
+{extend name="public/container"}
+{block name="title"}{$title}{/block}
+{block name="head_top"}
+<style>
+    .content {
+        padding: 0.3rem;
+    }
+</style>
+{/block}
+{block name="content"}
+<div class="search-page" id="app">
+    <div class="content">
+        {$content}
+    </div>
+    <shortcut></shortcut>
+</div>
+<script>
+    require(['vue','{__WAP_PATH}zsff/js/shortcut.js'], function (Vue) {
+        new Vue({
+            el: '#app',
+        });
+    });
+</script>
+{/block}

@@ -1,0 +1,290 @@
+{extend name="public/container"}
+{block name="title"}我的订单{/block}
+{block name="head_top"}
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+</style>
+{/block}
+{block name="content"}
+<div v-cloak id="app">
+    <div class="order-list">
+        <div class="header" >
+            <div class="cont">
+                <div class="text">
+                    <div class="">订单信息</div>
+                    <div>
+                        <span>累计订单：{{orderData.sum}}</span>
+                        <span>总消费：￥{{orderData.sumPrice}}</span>
+                    </div>
+                </div>
+                <div class="image">
+                    <img src="/wap/first/zsff/images/order.png">
+                </div>
+            </div>
+        </div>
+        <div class="main">
+            <ul class="menu">
+                <li :class="{on:type === 0}" @click="changeType(0)">
+                    <div>待付款</div>
+                    <div>{{orderData.noBuy}}</div>
+                </li>
+                <li :class="{on:type === 1}" @click="changeType(1)">
+                    <div>待发货</div>
+                    <div>{{orderData.noDelivered}}</div>
+                </li>
+                <li :class="{on:type === 2}" @click="changeType(2)">
+                    <div>待收货</div>
+                    <div>{{orderData.noTake}}</div>
+                </li>
+                <li :class="{on:type === 3}" @click="changeType(3)">
+                    <div>已完成</div>
+                    <div>{{orderData.noReply}}</div>
+                </li>
+                <li :class="{on:type === 4}" @click="changeType(4)">
+                    <div>退款</div>
+                    <div>{{orderData.refund}}</div>
+                </li>
+            </ul>
+            <ul v-if="orderList.list && orderList.list.length" class="list">
+                <li v-for="item in orderList.list">
+                    <div class="head">
+                        <div>订单号：{{item.order_id}}</div>
+                        <div v-text="item._status._title"></div>
+                    </div>
+                    <div class="cont">
+                        <div class="goods-group">
+                            <div class="goods" v-for="cart in item.cartInfo">
+                                <div class="image">
+                                    <img :src="cart.productInfo.image">
+                                </div>
+                                <div class="text">
+                                    <div class="name" v-text="cart.productInfo.store_name"></div>
+                                    <div class="money">
+                                        <div class="price">￥{{ cart.truePrice }}</div>
+                                    </div>
+                                </div>
+                                <div class="num">x{{cart.cart_num}}</div>
+                            </div>
+                            <div class="sum">共{{item.total_num}}件商品，总金额 <span>￥{{item.total_price}}</span></div>
+                        </div>
+                        <div class="btn">
+                            <a class="blue" v-if="item._status._type == 0" href="javascript:;" @click="orderPayment(item)">立即付款</a>
+                            <a class="blue" v-else-if="item._status._type == 2" href="javascript:;" @click="userTake(item.order_id)">确认收货</a>
+                            <a class="blue" href="javascript:;" @click="details(item.order_id)">查看详情</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <img v-else-if="orderList.loaded" class="nothing" src="/wap/first/zsff/images/noOrder.png">
+        </div>
+    </div>
+    <payment @change="changeVal" :payment="payment"  :money="money" :isyue="is_yue" :special_id="id" :iswechat="isWechat"  :pay_type_num="pay_type_num" ></payment>
+    <enter :appear="appear" @change="changeVal" :url="url" :site_name="site_name"></enter>
+    <shortcut></shortcut>
+</div>
+<script>
+    var site_name = '{$Auth_site_name}',type={$type};
+    var isWechat={$isWechat ? 'true' : 'false'},is_yue={$is_yue ? 'true' : 'false'};
+    require(['vue', 'store', 'helper','layer','axios','{__WAP_PATH}zsff/js/payment.js', '{__WAP_PATH}zsff/js/enter.js', '{__WAP_PATH}zsff/js/shortcut.js'], function (Vue, api, $h, layer, axios) {
+        var app = new Vue({
+            el: '#app',
+            data: {
+                type: type,
+                orderList: {
+                    first: 0,
+                    limit: 16,
+                    list: [],
+                    loaded: false,
+                    top: 0
+                },
+                loading: false,
+                finished: false,
+                scroll: null,
+                orderData: {
+                    noBuy: 0,
+                    noDelivered: 0,
+                    noTake: 0,
+                    noReply: 0,
+                    refund: 0,
+                },
+                appear: true,
+                isWechat: isWechat,
+                url: isWechat ? $h.U({ c: 'index', a: 'login' }) : $h.U({ c: 'login', a: 'phone_check' }),
+                id: 0,
+                payment: true,
+                money: 0.00,
+                pay_type_num: 50,
+                is_yue: is_yue, //余额是否开启
+                quick: false
+            },
+            watch: {
+                type: function (v) {
+                    if (v === null) return;
+                    this.orderList = {
+                        first: 0,
+                        limit: 8,
+                        list: [],
+                        loaded: false,
+                        top: 0
+                    };
+                    this.getOrderList();
+                }
+            },
+            created: function () {
+                this.isLogin();
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    $h.EventUtil.listenTouchDirection(document, function () {
+                        this.getOrderList();
+                    }.bind(this));
+                });
+            },
+            methods: {
+                orderPayment:function(order){
+                    this.id=order.id;
+                    this.money=order.pay_price;
+                    this.payment=false;
+                },
+                userTake:function(orderId){
+                    var that = this;
+                    layer.confirm('确定立即收货?',{icon:3},function(index){
+                        layer.close(index);
+                        $h.loadFFF();
+                        api.userTakeOrder(orderId,function(){
+                            $h.loadClear();
+                            $h.pushMsg('收货成功',function(){
+                                location.reload(true);
+                            });
+                        },function(e){ $h.loadClear(); return true; });
+                    })
+                },
+                pay_order:function(data){
+                    this.orderId=data.result.orderId || '';
+                    switch (data.status){
+                        case "PAY_ERROR":case 'ORDER_EXIST':case 'ORDER_ERROR':
+                            this.extendOrder(data.msg);
+                            break;
+                        case 'WECHAT_PAY':
+                            this.wechatPay(data.result.jsConfig);
+                            break;
+                        case 'SUCCESS':
+                            this.successOrder(data.msg);
+                            break;
+                        case 'ZHIFUBAO_PAY':
+                            window.location.href=$h.U({c:'Alipay',a:'index',q:{info:data.result,params:'goods'}});
+                            break;
+                    }
+                },
+                wechatPay:function(config){
+                    var that = this;
+                    mapleWx($jssdk(),function(){
+                        this.chooseWXPay(config,function(){
+                            that.successOrder();
+                        },{
+                            fail:that.extendOrder,
+                            cancel:that.extendOrder
+                        });
+                    });
+                },
+                successOrder:function(msg){
+                    $h.showMsg({
+                        title:msg ? msg :'支付成功',
+                        icon:'success',
+                        success:function (){
+                            location.reload();
+                        }
+                    });
+                },
+                extendOrder:function(msg){
+                    $h.showMsg({
+                        title:msg ? msg :'支付失败',
+                        icon:'error',
+                        success:function (){
+                            location.reload();
+                        }
+                    });
+                },
+                enter: function () {
+                    this.appear = false;
+                },
+                //关闭支付
+                payClose:function(value){
+                    this.payment=value;
+                },
+                //所有插件回调处理事件
+                changeVal: function (opt) {
+                    if (typeof opt != 'object') opt = {};
+                    var action = opt.action || '';
+                    var value = opt.value || '';
+                    this[action] && this[action](value);
+                },
+                isLogin: function () {
+                    $h.loadFFF();
+                    api.baseGet($h.U({
+                        c: 'index',
+                        a: 'user_login'
+                    }), function () {
+                        $h.loadClear();
+                        this.appear = true;
+                        this.getOrderStatus();
+                        this.getOrderList();
+                    }.bind(this), function () {
+                        $h.loadClear();
+                        this.appear = false;
+                    }.bind(this))
+                },
+                getOrderList: function () {
+                    if (this.loading) {
+                        return;
+                    }
+                    if (this.orderList.loaded) {
+                        return;
+                    }
+                    this.loading = true;
+                    $h.loadFFF();
+                    api.baseGet($h.U({
+                        c: 'auth_api',
+                        a: 'get_user_order_list',
+                        p: {
+                            type: this.type,
+                            first: this.orderList.first,
+                            limit: this.orderList.limit
+                        }
+                    }), function (res) {
+                        $h.loadClear();
+                        this.loading = false;
+                        var data = res.data.data;
+                        this.orderList.list = this.orderList.list.concat(data);
+                        this.orderList.loaded = data.length < this.orderList.limit;
+                        this.orderList.first++;
+                    }.bind(this), function (err) {
+                        $h.loadClear();
+                        this.loading = false
+                    }.bind(this));
+                },
+                details: function (order_id) {
+                    location.href = "{:url('wap/special/order')}?uni=" + order_id;
+                },
+                getOrderStatus: function () {
+                    api.baseGet($h.U({
+                        c: 'auth_api',
+                        a: 'userOrderDate'
+                    }), function (res) {
+                        this.orderData = res.data.data;
+                    }.bind(this));
+                },
+                changeType: function (type) {
+                    if (this.loading) {
+                        return;
+                    }
+                    this.type = type;
+                }
+
+            }
+        });
+    });
+</script>
+{/block}

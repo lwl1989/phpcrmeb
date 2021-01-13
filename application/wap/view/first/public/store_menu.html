@@ -1,0 +1,30 @@
+<?php
+$request = \think\Request::instance();
+$now_c = $request->controller();$now_a = $request->action();
+
+$menu = [
+        ['c'=>'Index','a'=>'index','name'=>'首页','class'=>'/wap/first/zsff/images/footer1-002.png','hove_class'=>'/wap/first/zsff/images/footer1-001.png'],
+        ['c'=>'Special','a'=>'special_cate','name'=>'课程','class'=>'/wap/first/zsff/images/footer2-002.png','hove_class'=>'/wap/first/zsff/images/footer2-001.png'],
+        ['c'=>'Store','a'=>'index','name'=>'商城','class'=>'/wap/first/zsff/images/footer5-002.png','hove_class'=>'/wap/first/zsff/images/footer5-001.png'],
+        ['c'=>'My','a'=>'index','name'=>'我的','class'=>'/wap/first/zsff/images/footer4-002.png','hove_class'=>'/wap/first/zsff/images/footer4-001.png'],
+    ];
+
+?>
+
+<footer id="footer" class="acea-row row-middle" style="z-index: 2" ref="storeMenu" @touchmove.prevent>
+    {volist name="menu" id="vo"}
+    <?php
+        if(strtolower($now_c) == strtolower($vo['c']) && strtolower($now_a) == strtolower($vo['a'])){
+            $href = 'javascript:void(0);';
+            $checked = true;
+        }else{
+            $href = Url($vo['c'].'/'.$vo['a']);
+            $checked = false;
+        }
+    ?>
+    <a class="<?php if($checked){echo ' on ';} ?>" href="{$href}">
+        <div class="pictrue"><img src="{if $checked}{$vo.class}{else}{$vo.hove_class}{/if}"></div>
+        <div class="name">{$vo['name']}</div>
+    </a>
+    {/volist}
+</footer>

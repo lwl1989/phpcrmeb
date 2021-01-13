@@ -1,0 +1,471 @@
+{extend name="public/container"}
+{block name="head_top"}
+<script src="{__WAP_PATH}zsff/js/md5.js"></script>
+<link rel="stylesheet" href="//g.alicdn.com/de/prismplayer/2.8.8/skins/default/aliplayer-min.css">
+<script src="//g.alicdn.com/de/prismplayer/2.8.8/aliplayer-min.js"></script>
+<script src="//g.alicdn.com/de/prismplayer/2.8.8/hls/aliplayer-vod-min.js"></script>
+<!--<script src="//g.alicdn.com/de/prismplayer/2.8.8/hls/aliplayer-vod-anti-min.js"></script>页面防调试js-->
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+</style>
+{/block}
+{block name="content"}
+<div v-cloak id="app">
+    <div class="task-info">
+        <div v-if="taskInfo.type !== 1" id="player" :style="{ height: playerHeight + 'px' }" class="prism-player" :hidden="taskInfo.type === 2"></div>
+        <div v-if="taskInfo.type !== 3" :style="{ height: playerHeight + 'px' }" class="banner">
+            <img :src="taskInfo.image">
+        </div>
+        <div class="intro">
+            <div>{{ taskInfo.title }}</div>
+            <div>已播放{{ taskInfo.play_count }}次</div>
+        </div>
+        <div v-if="taskInfo.type === 2" class="audio-custom">
+            <div class="progress">
+                <div class="time">{{ audioPlayer.currentTime | format }}</div>
+                <div ref="bar" class="bar" @click="audioSeek">
+                    <div :style="{ width: audioPlayer.range + '%' }" class="range" @touchmove.self="audioSeeking" @touchend="audioSeekEnd">
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="time">{{ audioPlayer.duration | format }}</div>
+            </div>
+            <div class="control">
+                <button class="knowledge iconleft" type="button" @click="audioPrev"></button>
+                <button type="button" @click="audioPlay">
+                    <svg class="icon" aria-hidden="true">
+                        <use :xlink:href="audioPlayer.paused ? '#iconbofang1' : '#iconzanting'"></use>
+                    </svg>
+                </button>
+                <button class="knowledge iconright" type="button" @click="audioNext"></button>
+            </div>
+            <audio ref="audio" :src="audioPlayer.src" @durationchange="onAudioDurationChange($event)" @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded">您的浏览器不支持 H5 audio</audio>
+        </div>
+        <div class="video_tab acea-row row-around">
+            <div :class="{ on: type === 0 }" class="item" @click="type = 0">详情</div>
+            <div :class="{ on: type === 1 }" class="item" @click="type = 1">目录</div>
+        </div>
+        <div v-show="type === 0" class="content" v-html="taskInfo.content"></div>
+        <div v-show="type === 1" class="video_list">
+            <ul class="catalogue">
+                <li v-for="(item, index) in taskList" :key="item.id" :class="{ gray: item.taskTrue }"
+                    @click="play(item)">
+                    <div class="image">
+                        <img v-if="item.type === 1" class="img" src="{__WAP_PATH}zsff/images/media1.png">
+                        <img v-else-if="item.type === 2" class="img" src="{__WAP_PATH}zsff/images/media2.png">
+                        <img v-else-if="item.type === 3 || item.type === 4" class="img"
+                            src="{__WAP_PATH}zsff/images/media3.png">
+                    </div>
+                    <div class="title">{{index < 9 ? '0' + (index + 1) : index + 1}} | {{item.title}}</div>
+                    <div v-if="item.pay_status" class="knowledge iconsuozi"></div>
+                    <div v-else class="free">免费</div>
+                </li>
+            </ul>
+            <p class="loading-line" style="background-color: #fff">
+                <span v-show="loading == true" class="fa fa-spinner loadingpic" style="font-size: 0.4rem"></span>
+                <span v-show="taskList.length > 10" v-text="loadTitle">加载更多</span>
+            </p>
+        </div>
+    </div>
+    <shortcut></shortcut>
+</div>
+{/block}
+{block name='foot'}
+<script>
+    var taskInfo = {$taskInfo},
+        specialId = {$specialId},
+        specialInfo = {$specialInfo},
+        isPay = {$isPay? 'true': 'false'},
+        isMember = {$is_member};
+
+    require(['vue', 'helper', 'store', '{__WAP_PATH}zsff/js/shortcut.js'], function (Vue, $h, api) {
+        var app = new Vue({
+            el: '#app',
+            filters: {
+                format: function (time) {
+                    if (!time) {
+                        return '00:00';
+                    }
+                    var minutes = Math.floor(time / 60),
+                        seconds = Math.floor(time % 60);
+                    if (minutes < 10) {
+                        minutes = '0' + minutes;
+                    }
+                    if (seconds < 10) {
+                        seconds = '0' + seconds;
+                    }
+                    return minutes + ':' + seconds;
+                }
+            },
+            data: {
+                taskInfo: taskInfo,
+                specialInfo: specialInfo,
+                isMember: isMember ? isMember : 0,
+                taskList: [],
+                type: 0,
+                where: {
+                    page: 1,
+                    limit: 10,
+                    special_id: specialId,
+                },
+                is_pay: isPay,
+                loading: false,
+                loadend: false,
+                loadTitle: '上拉加载更多',
+                bannerImg: '',
+                audio: null,
+                audioBar: null,
+                audioPlayer: {
+                    src: taskInfo.link,
+                    currentIndex: 0,
+                    currentTime: 0,
+                    duration: 0,
+                    range: 0,
+                    paused: true
+                },
+                currentMedia: null,
+                screenWidth: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
+                timer: null,
+                player: null
+            },
+            computed: {
+                playerHeight: function () {
+                    return this.screenWidth * 9 / 16;
+                }
+            },
+            watch: {
+                'audioPlayer.src': function () {
+                    this.bannerImg = this.taskList[this.audioPlayer.currentIndex].image;
+                },
+                currentMedia: function () {
+                    clearTimeout(this.timer);
+                }
+            },
+            created: function () {
+                document.title = this.taskInfo.title;
+                this.getCourseList();
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    this.timer = setTimeout(() => {
+                        this.setMemory(30);
+                        clearTimeout(this.timer);
+                    }, 30000);
+                    if (this.taskInfo.type === 1) {
+                        return;
+                    }
+                    if (this.taskInfo.link && !this.taskInfo.videoId) {
+                        this.audio = this.$refs.audio;
+                        this.createPlayer();
+                    } else if(this.taskInfo.videoId && !this.taskInfo.link){
+                        this.callPlayAuth();
+                    }
+                });
+            },
+            destroyed: function () {
+                this.player.dispose();
+            },
+            methods: {
+                // 音频时长
+                onAudioDurationChange: function (event) {
+                    var duration = event.target.duration;
+                    this.audioPlayer.duration = duration;
+                },
+                // 音频播放进度
+                onAudioTimeUpdate: function (event) {
+                    var target = event.target,
+                        currentTime = target.currentTime;
+                    this.audioPlayer.currentTime = currentTime;
+                    this.audioPlayer.range = Math.floor(currentTime / target.duration * 100);
+                },
+                // 拖动音频进度条
+                audioSeeking: function (event) {
+                    var range = (event.targetTouches[0].pageX - event.target.offsetLeft) / this.audioBar.offsetWidth * 100;
+                    this.audioPlayer.paused = true;
+                    if (range > 100) {
+                        range = 100;
+                    }
+                    this.audioPlayer.range = range;
+                    if(this.taskInfo.videoId) {
+                        this.player.pause();
+                    }else{
+                        this.audioPlayer.paused ? this.audio.pause() : this.audio.play();
+                    }
+                },
+                // 拖动音频进度条结束
+                audioSeekEnd: function () {
+                    this.audioPlayer.paused = false;
+                    if(this.taskInfo.videoId) {
+                        var time = this.player.getDuration() * this.audioPlayer.range / 100;
+                        this.player.seek(time);
+                        this.player.play();
+                    }else{
+                        this.audio.currentTime = this.audio.duration * this.audioPlayer.range / 100;
+                        this.audioPlayer.paused ? this.audio.pause() : this.audio.play();
+                    }
+                },
+                // 点击音频进度条
+                audioSeek: function (event) {
+                    this.audioPlayer.paused = false;
+                    if(this.taskInfo.videoId){
+                        var range = event.offsetX / this.audioBar.offsetWidth,
+                            currentTime = this.player.getDuration() * range;
+                        this.audioPlayer.range = range * 100;
+                        this.player.seek(currentTime);
+                        this.player.play();
+                    }else{
+                        var range = event.offsetX / this.audioBar.offsetWidth,
+                            currentTime = this.audio.duration * range;
+                        this.audioPlayer.range = range * 100;
+                        this.audio.currentTime = currentTime;
+                        this.audioPlayer.paused ? this.audio.pause() : this.audio.play();
+                    }
+                },
+                // 音频播放/暂停
+                audioPlay: function () {
+                    this.audioPlayer.paused = !this.audioPlayer.paused;
+                    if(this.taskInfo.videoId){
+                        this.audioPlayer.paused ? this.player.pause() : this.player.play();
+                    }else{
+                        this.audioPlayer.paused ? this.audio.pause() : this.audio.play();
+                    }
+                },
+                // 音频播放结束
+                onAudioEnded: function () {
+                    this.audioPlayer.paused = true;
+                    this.audioPlayer.paused ? this.audio.pause() : this.audio.play();
+                },
+                // 音频上一首
+                audioPrev: function () {
+                    var that=this;
+                    var taskListLength = that.taskList.length,
+                        currentIndex = that.audioPlayer.currentIndex,
+                        currentTask;
+                    for(var i=0;i<taskListLength;i++){
+                        if(that.taskList[i].id==that.taskInfo.id){
+                            currentIndex=i;
+                        }
+                    }
+                    if(currentIndex>0){
+                        currentIndex=Number(currentIndex)-1;
+                    }else{
+                        return $h.pushMsgOnce('当前已是第一首');
+                    }
+                    currentTask = that.taskList[currentIndex];
+                    if (currentTask.pay_status) {
+                        return $h.pushMsgOnce('请购买后再播放');
+                    }
+                    that.play(currentTask);
+                },
+                // 音频下一首
+                audioNext: function () {
+                    var that=this;
+                    var taskListLength = that.taskList.length,
+                        currentIndex = that.audioPlayer.currentIndex,
+                        currentTask;
+                    for(var i=0;i<taskListLength;i++){
+                        if(that.taskList[i].id==that.taskInfo.id){
+                            currentIndex=i;
+                        }
+                    }
+                    currentIndex=Number(currentIndex)+1;
+                    if(currentIndex==taskListLength){
+                        return $h.pushMsgOnce('当前已是最好一首');
+                    }
+                    currentTask = that.taskList[currentIndex];
+                    if (currentTask.pay_status) {
+                        return $h.pushMsgOnce('请购买后再播放');
+                    }
+                    that.play(currentTask);
+                },
+                // 播放记忆
+                setMemory: function (time) {
+                    var id = this.currentMedia ? this.currentMedia.id : this.taskInfo.id;
+                    api.baseGet($h.U({ c: 'special', a: 'viewing', q: { special_id: this.where.special_id, task_id: id, time: time } }));
+                },
+                play: function (item) {
+                    if (this.specialInfo.pay_type == 1 && item.pay_status == 1 && this.is_pay == false) return $h.pushMsgOnce('请先购买~');
+                    if (item.is_pay == 2) {
+                        this.password = true;
+                        this.studio_pwd = item.studio_pwd;
+                        this.stream_name = item.stream_name;
+                        return;
+                    }
+                    var that = this;
+                    that.currentMedia = item;
+                    api.baseGet($h.U({ c: 'special', a: 'get_task_link', q: { task_id: item.id, special_id: item.special_id } }), function (res) {
+                        if (item.type == 4) {
+                            window.location.href = $h.U({ c: 'live', a: 'index', q: { stream_name: item.stream_name } });
+                        } else {
+                            api.baseGet($h.U({ c: 'special', a: 'play_num', q: { task_id: item.id, special_id: item.special_id } }));
+                            location.href = $h.U({
+                                c: 'special',
+                                a: 'task_info',
+                                q: { id: item.id, specialId: specialId, content: 2 }
+                            });
+                        }
+                    }, function (err) {
+                        return $h.pushMsgOnce(err);
+                    })
+                },
+                //滑动底部加载
+                bScrollInit: function () {
+                    var that = this;
+                    $h.EventUtil.listenTouchDirection(document, function () {
+                        that.loading == false && that.getCourseList();
+                    }, false);
+                },
+                getCourseList: function () {
+                    var that = this;
+                    if (this.loading) return;
+                    if (this.loaded) return;
+                    this.loadTitle = '';
+                    this.loading = true;
+                    api.baseGet($h.U({ c: 'special', a: 'get_course_list', q: this.where }), function (res) {
+                        var data = res.data.data;
+                        var list = data.list || [];
+                        this.taskList = this.taskList.concat(list);
+                        this.where.page = data.page;
+                        this.loaded = list.length < this.where.limit;
+                        this.loadTitle = this.loaded ? '我也是有底线的' : '上拉加载更多';
+                        this.loading = false;
+                        this.$nextTick(function () {
+                            this.bScrollInit();
+                        });
+
+                    }.bind(this), function (res) {
+                        that.loading = false;
+                        that.loadTitle = '加载更多';
+                    });
+                },
+                // 创建播放器
+                createPlayer: function () {
+                    var that=this;
+                    if (that.taskInfo.type === 2) {
+                        that.audio = that.$refs.audio;
+                        that.audioBar = that.$refs.bar;
+                    } else {
+                        that.player = new Aliplayer({
+                            id: 'player',
+                            source: that.taskInfo.link,
+                            cover: that.taskInfo.image,
+                            autoplay: false,
+                            skinLayout: [
+                                { name: "bigPlayButton", align: "cc" },
+                                {
+                                    name: "H5Loading", align: "cc"
+                                },
+                                { name: "errorDisplay", align: "tlabs", x: 0, y: 0 },
+                                { name: "infoDisplay" },
+                                { name: "tooltip", align: "blabs", x: 0, y: 56 },
+                                { name: "thumbnail" },
+                                {
+                                    name: "controlBar", align: "blabs", x: 0, y: 0,
+                                    children: [
+                                        { name: "progress", align: "blabs", x: 0, y: 44 },
+                                        { name: "playButton", align: "tl", x: 15, y: 12 },
+                                        { name: "timeDisplay", align: "tl", x: 10, y: 7 },
+                                        { name: "fullScreenButton", align: "tr", x: 10, y: 12 },
+                                        { name: "subtitle", align: "tr", x: 15, y: 12 },
+                                        { name: "setting", align: "tr", x: 15, y: 12 },
+                                        { name: "volume", align: "tr", x: 5, y: 10 }
+                                    ]
+                                }
+                            ]
+                        });
+                    }
+                },
+                // 获取播放凭证
+                callPlayAuth: function () {
+                    $h.loadFFF();
+                    api.baseGet($h.U({
+                        c: 'special',
+                        a: 'get_video_playback_credentials',
+                        p: {
+                            type: 2,
+                            videoId: this.taskInfo.videoId
+                        }
+                    }), function (res) {
+                        this.getPlayAuth(res.data.msg);
+                    }.bind(this), function (err) {
+                        $h.loadClear();
+                        console.error(err);
+                    });
+                },
+                getPlayAuth: function (url) {
+                    var xhr = new XMLHttpRequest();
+                    var that=this;
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            $h.loadClear();
+                            var data = JSON.parse(xhr.responseText);
+                            if (that.taskInfo.type === 2) {
+                                that.audioBar = that.$refs.bar;
+                                that.player = new Aliplayer({
+                                    id: 'player',
+                                    vid: data.VideoMeta.VideoId,
+                                    playauth: data.PlayAuth,
+                                    format: 'mp3',
+                                    mediaType: 'audio',
+                                    encryptType: 1,
+                                    autoplay: false
+                                });
+                                that.player.on('ready', function () {
+                                    that.audioPlayer.duration = data.VideoMeta.Duration;
+                                }.bind(this));
+                                that.player.on('ended', function () {
+                                    that.audioPlayer.paused = true;
+                                }.bind(this));
+                                that.player.on('timeupdate', function () {
+                                    that.audioPlayer.currentTime = that.player.getCurrentTime();
+                                    that.audioPlayer.range = Math.floor(that.player.getCurrentTime() / that.player.getDuration() * 100);
+                                }.bind(this));
+                                that.player.on('error', function (event) {
+                                    console.error(event);
+                                }.bind(this));
+                            } else {
+                                that.player = new Aliplayer({
+                                    id: 'player',
+                                    vid: data.VideoMeta.VideoId,
+                                    playauth: data.PlayAuth,
+                                    cover: data.VideoMeta.CoverURL,
+                                    encryptType: 1,
+                                    autoplay: false,
+                                    skinLayout: [
+                                        { name: "bigPlayButton", align: "cc" },
+                                        {
+                                            name: "H5Loading", align: "cc"
+                                        },
+                                        { name: "errorDisplay", align: "tlabs", x: 0, y: 0 },
+                                        { name: "infoDisplay" },
+                                        { name: "tooltip", align: "blabs", x: 0, y: 56 },
+                                        { name: "thumbnail" },
+                                        {
+                                            name: "controlBar", align: "blabs", x: 0, y: 0,
+                                            children: [
+                                                { name: "progress", align: "blabs", x: 0, y: 44 },
+                                                { name: "playButton", align: "tl", x: 15, y: 12 },
+                                                { name: "timeDisplay", align: "tl", x: 10, y: 7 },
+                                                { name: "fullScreenButton", align: "tr", x: 10, y: 12 },
+                                                { name: "subtitle", align: "tr", x: 15, y: 12 },
+                                                { name: "setting", align: "tr", x: 15, y: 12 },
+                                                { name: "volume", align: "tr", x: 5, y: 10 }
+                                            ]
+                                        }
+                                    ]
+                                });
+                            }
+                        } else {
+                            $h.loadClear();
+                        }
+                    }.bind(this);
+                    xhr.open('GET', url);
+                    xhr.send();
+                }
+            }
+        });
+    });
+</script>
+{/block}

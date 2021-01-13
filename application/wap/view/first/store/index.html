@@ -1,0 +1,189 @@
+{extend name="public/container"}
+{block name="title"}商品列表{/block}
+{block name="content"}
+<div v-cloak id="app">
+    <div class="store-home">
+        <div class="carousel">
+            <div id="carousel" class="swiper-container">
+                <div class="swiper-wrapper">
+                    <div v-for="(item, index) in banner" :key="index" :data-url="item.url" class="swiper-slide">
+                        <img class="img" :src="item.pic">
+                    </div>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+        <div id="navigation" class="swiper-container navigation">
+            <div class="swiper-wrapper">
+                <div v-for="(item, index) in category" :key="item.id" :data-id="item.id"
+                    :class="{ on: index == categoryActiveIndex }" class="swiper-slide" @click="cateName(item.id,index)">{{ item.cate_name }}</div>
+            </div>
+        </div>
+        <div class="goods-section">
+            <div v-if="categoryGoods && categoryGoods.length" class="list">
+                <a v-for="item in categoryGoods" :key="item.id" class="item" :href="'detail.html?id=' + item.id">
+                    <div class="image">
+                        <img class="img" :src="item.image">
+                    </div>
+                    <div class="text">
+                        <div class="title">{{ item.store_name }}</div>
+                        <div class="group">
+                            <div class="price">￥<span class="num">{{ item.price }}</span></div>
+                            <div class="sale">已售{{ item.sales }}件</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <img v-else-if="finished" class="nothing" src="/wap/first/zsff/images/noGood.png">
+        </div>
+    </div>
+    {include file="public/store_menu"}
+</div>
+<script>
+    var banner = {$banner};
+    require(['vue', 'store', 'helper'], function (Vue, api, $h) {
+        var app = new Vue({
+            el: '#app',
+            data: {
+                banner: banner ? banner : [],
+                category: [],
+                categoryGoods: [],
+                categoryActiveIndex: 0,
+                categoryActiveId: 0,
+                page: 1,
+                limit: 16,
+                loading:false,
+                finished:false,
+                carousel: null
+            },
+            watch: {
+                category: function (value) {
+                    this.getCategoryGoods(value[0].id);
+                }
+            },
+            created: function () {
+                this.getCategory();
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    this.initCarousel();
+                    this.initNavigation();
+                    $h.EventUtil.listenTouchDirection(document, function () {
+                        this.getCategoryGoods();
+                    }.bind(this));
+                });
+            },
+            destroyed: function () {
+                this.carousel.destroy();
+                this.navigation.destroy();
+            },
+            methods: {
+                initCarousel: function () {
+                    this.carousel = new Swiper('#carousel', {
+                        speed: 1000,
+                        autoplay: 2500,
+                        spaceBetween: 20,
+                        autoplayDisableOnInteraction: false,
+                        pagination: '.swiper-pagination',
+                        paginationClickable: true,
+                        loop: true,
+                        observer: true,
+                        observeParents: true,
+                        onInit: function (swiper) {
+                            if (swiper.slides.length <= 3) {
+                                swiper.lockSwipes();
+                            }
+                        },
+                        onClick: function (swiper, event) {
+                            var url = event.target.dataset.url;
+                            if (url && url != '#') {
+                                location.href = url;
+                            }
+                        }
+                    });
+                },
+                initNavigation: function () {
+                    this.navigation = new Swiper('#navigation', {
+                        freeMode: true,
+                        slidesPerView: 'auto',
+                        observer: true,
+                        observeParents: true,
+                        onClick: function (swiper) {
+                            if (!swiper.clickedSlide) {
+                                return;
+                            }
+                            if (swiper.clickedSlide.offsetLeft < swiper.size / 2 - swiper.clickedSlide.clientWidth / 2) {
+                                swiper.setWrapperTranslate(0);
+                            } else if (swiper.clickedSlide.offsetLeft > swiper.virtualSize - swiper.clickedSlide.clientWidth / 2 - swiper.size / 2) {
+                                swiper.setWrapperTranslate(swiper.size - swiper.virtualSize);
+                            } else {
+                                swiper.setWrapperTranslate(swiper.size / 2 - swiper.clickedSlide.clientWidth / 2 - swiper.clickedSlide.offsetLeft);
+                            }
+                            if (this.categoryActiveIndex === swiper.clickedIndex) {
+                                return;
+                            }
+                            this.categoryActiveIndex = swiper.clickedIndex;
+                            this.categoryActiveId = swiper.clickedSlide.dataset.id;
+                            this.categoryGoods = [];
+                            this.finished = true;
+                            this.getCategoryGoods();
+                        }.bind(this)
+                    });
+                },
+                // 获取分类
+                getCategory: function () {
+                    $h.loadFFF();
+                    api.baseGet($h.U({
+                        c: 'store',
+                        a: 'getcategory'
+                    }), function (res) {
+                        $h.loadClear();
+                        var data = res.data.data;
+                        this.category = data;
+                        if (this.navigation) {
+                            // this.navigation.update();
+                        } else {
+                            this.initNavigation();
+                        }
+                    }.bind(this), function () {
+                        $h.loadClear();
+                    });
+                },
+                cateName:function(cid,index){
+                    this.page=1;
+                    this.categoryActiveId=cid;
+                    this.categoryActiveIndex=index;
+                    this.categoryGoods =[];
+                    this.loading=false;
+                    this.finished=false;
+                    this.getCategoryGoods();
+                },
+                // 获取分类商品
+                getCategoryGoods: function (id) {
+                    if (this.finished) {
+                        return;
+                    }
+                    $h.loadFFF();
+                    api.baseGet($h.U({
+                        c: 'store',
+                        a: 'getproductlist',
+                        p: {
+                            cId: this.categoryActiveId,
+                            page: this.page,
+                            limit: this.limit
+                        }
+                    }), function (res) {
+                        $h.loadClear();
+                        var data = res.data.data;
+                        this.categoryGoods = this.categoryGoods.concat(data);
+                        this.finished = data.length < this.limit;
+                        this.page++;
+                    }.bind(this), function () {
+                        $h.loadClear();
+                    });
+                }
+            }
+        });
+    });
+</script>
+{/block}
