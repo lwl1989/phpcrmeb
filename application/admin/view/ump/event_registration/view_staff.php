@@ -42,61 +42,6 @@
                 </div>
             </div>
 
-            <div class="layui-card">
-<!--                名字，赛区，项目，组别，奖项-->
-                <div class="layui-card-header">证书图片</div>
-                <div class="layui-card-body">
-                    <div class="layui-carousel layadmin-carousel layadmin-shortcut" lay-anim="" lay-indicator="inside" lay-arrow="none" style="background:none">
-                        <div class="layui-card-body">
-                            <div class="layui-row layui-col-space10 layui-form-item">
-
-                                <div class="layui-col-lg12">
-                                    <div class="layui-input-block">
-                                        <button class="layui-btn layui-btn-sm" @click="upload('cert_img')" type="button">{$img.image}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="layui-col-lg12">
-                                    <label class="layui-form-label">名字像素位置:</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" name="real_name" style="width: 50%" v-model="img.name" placeholder="123x123" class="layui-input">
-                                    </div>
-                                </div>
-                                <div class="layui-col-lg12">
-                                    <label class="layui-form-label">赛区像素位置:</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" name="real_name" style="width: 50%" v-model="img.area" placeholder="123x123" class="layui-input">
-                                    </div>
-                                </div>
-                                <div class="layui-col-lg12">
-                                    <label class="layui-form-label">项目像素位置:</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" name="real_name" style="width: 50%" v-model="img.project" placeholder="123x123" class="layui-input">
-                                    </div>
-                                </div>
-                                <div class="layui-col-lg12">
-                                    <label class="layui-form-label">组别像素位置:</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" name="real_name" style="width: 50%" v-model="img.group" placeholder="123x123" class="layui-input">
-                                    </div>
-                                </div>
-                                <div class="layui-col-lg12">
-                                    <label class="layui-form-label">奖项像素位置:</label>
-                                    <div class="layui-input-block">
-                                        <input type="text" name="real_name" style="width: 50%" v-model="img.prize" placeholder="123x123" class="layui-input">
-                                    </div>
-                                </div>
-                                <div class="layui-col-lg12">
-
-                                    <div class="layui-input-block">
-                                        <button class="layui-btn layui-btn-sm" type="button">保存</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="layui-col-md12">
             <div class="layui-card">
@@ -175,15 +120,6 @@
                     real_name:'',
                     excel:0,
                 },
-                //名字，赛区，项目，组别，奖项
-                img:{
-                    image:'',
-                    name:'',
-                    area:'',
-                    project:'',
-                    group:'',
-                    prize:''
-                },
                 showtime: false,
                 uploader:null,
             },
@@ -200,29 +136,6 @@
                 excel:function () {
                     this.where.excel=1;
                     location.href=layList.U({c:'ump.event_registration',a:'get_sign_up_list',q:this.where});
-                },
-                //上传图片
-                upload:function(key,count){
-                    ossUpload.createFrame('请选择图片',{fodder:key,max_count:count === undefined ? 0 : count},{w:800,h:550});
-                },
-                changeIMG:function(key,value,multiple){
-                    if(multiple){
-                        var that = this;
-                        value.map(function (v) {
-                            that.img.image = v
-                        });
-                    }
-                },
-                //取消
-                cancelUpload:function(){
-                    this.uploader.stop();
-                    this.is_video = false;
-                    this.videoWidth = 0;
-                    this.is_upload = false;
-                },
-                //查看图片
-                look:function(pic){
-                    parent.$eb.openImage(pic);
                 },
                 //鼠标移入事件
                 enter:function(item){

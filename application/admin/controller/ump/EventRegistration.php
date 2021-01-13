@@ -96,6 +96,7 @@ class EventRegistration extends AuthController
             return Json::successful('删除成功!');
     }
 
+
     /**
      * 添加和修改图文
      */
@@ -182,6 +183,46 @@ class EventRegistration extends AuthController
         $this->assign('aid', $id);
         return $this->fetch('view_staff');
     }
+
+    /**
+     * 设置报名人员海报
+     */
+    public function view_staff_image($id)
+    {
+        $activity = EventRegistrationModel::where('id', $id)->find();
+        if (!$activity) return Json::fail('活动不存在!');
+        $img = EventCertImg::where('event_id', $id)->find();
+        if ($img) {
+            $img = $img->toArray();
+            if (!empty($img['cert_template'])) {
+                $arr = json_decode($img['cert_template'], true);
+                if (is_array($arr)) {
+                    $img = array_merge($img, $arr);
+                }
+            }
+            $this->assign('img', $img);
+        } else {
+            $this->assign('img', ['image' => '', 'prize' => '', 'group' => '', 'name' => '', 'project' => '', 'area' => '']);
+        }
+        $this->assign('event_id', $id);
+        return $this->fetch('view_staff_image');
+    }
+
+    /**
+     * 添加和修改图片模板
+     */
+    public function image_template()
+    {
+        $data = parent::postMore(['event_id', 'image', 'name', 'area', 'project', 'group', 'prize']);
+        $tp = $data;
+        unset($tp['event_id']);
+        unset($tp['image']);
+        EventCertImg::create([
+            'event_id' => $data['event_id'], 'image' => $data['image'], 'cert_template' => json_encode($tp),
+        ]);
+        return Json::successful('设置图片模板成功');
+    }
+
 
     public function get_sign_up_list()
     {

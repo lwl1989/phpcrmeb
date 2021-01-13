@@ -48,6 +48,11 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="javascript:void(0)"  onclick="action.open_add('{:Url('viewStaffImage')}?id={{d.id}}','海报设置')" >
+                                    <i class="fa fa-paste"></i> 报名人员
+                                </a>
+                            </li>
+                            <li>
                                 <a href="javascript:void(0)"  onclick="action.open_add('{:Url('create')}?id={{d.id}}','编辑')" >
                                     <i class="layui-icon layui-icon-edit"></i>编辑
                                 </a>
