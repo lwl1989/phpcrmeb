@@ -48,8 +48,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)"  onclick="action.open_add('{:Url('viewStaffImage')}?id={{d.id}}','海报设置')" >
-                                    <i class="fa fa-paste"></i> 报名人员
+                                <a href="javascript:void(0)"  onclick="action.open_add('{:Url('view_staff_image')}?id={{d.id}}','海报设置')" >
+                                    <i class="fa fa-paste"></i> 海报设置
                                 </a>
                             </li>
                             <li>
