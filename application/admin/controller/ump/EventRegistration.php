@@ -217,6 +217,12 @@ class EventRegistration extends AuthController
         $tp = $data;
         unset($tp['event_id']);
         unset($tp['image']);
+        foreach ($tp as $k=>$v) {
+            $vArr = explode( 'x', $v);
+            if(count($vArr)!=2) {
+                return Json::fail('参数格式不对，请使用数字x数字'.$k.$v.strval(count($vArr)));
+            }
+        }
         EventCertImg::create([
             'event_id' => $data['event_id'], 'image' => $data['image'], 'cert_template' => json_encode($tp),
         ]);

@@ -283,7 +283,7 @@
                         a: 'image_template',
                     }), that.formData, function (res) {
                         layList.loadClear();
-                        layList.msg('修改成功', function () {
+                        layList.msg('设置成功', function () {
                             parent.layer.closeAll();
                             window.location.reload();
                         })
