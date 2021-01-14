@@ -176,6 +176,7 @@
             el: "#app",
             data: {
                 formData: {
+                    event_id: {$event_id},
                     image:'',
                     name:'',
                     area:'',
