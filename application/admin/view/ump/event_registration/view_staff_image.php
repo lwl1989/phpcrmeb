@@ -124,18 +124,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="input-group">
-                            <span class="input-group-addon">标题</span>
-                            <input maxlength="64" placeholder="请在这里输入标题" name="title" class="layui-input" id="title"
-                                   v-model="formData.title">
-                        </div>
-                    </div>
                 </div>
                 <div class="form-group">
                     <div class="col-md-12">
                         <div class="form-control" style="height:auto">
-                            <label style="color:#ccc">海报设置</label>
+                            <label style="color:#ccc">证书设置</label>
                             <div class="row nowrap">
                                 <div class="col-xs-3" style="width:160px">
                                     <img :src="formData.image" alt="" style="width:100px">
@@ -170,19 +163,19 @@
 {/block}
 {block name="script"}
 <script>
-    var id = {$event_id}, news = {$img};
+    var id = {$event_id}, img = {$img};
     require(['vue', 'zh-cn', 'request', 'aliyun-oss', 'plupload', 'OssUpload'], function (Vue) {
         new Vue({
             el: "#app",
             data: {
                 formData: {
                     event_id: {$event_id},
-                    image:'',
-                    name:'',
-                    area:'',
-                    project:'',
-                    group:'',
-                    prize:''
+                    image:img.image,
+                    name:img.name,
+                    area:img.area,
+                    project:img.project,
+                    group:img.group,
+                    prize:img.prize
                 },
                 host: ossUpload.host + '/',
                 mask: {
