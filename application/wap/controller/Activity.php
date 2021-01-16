@@ -2,8 +2,10 @@
 
 namespace app\wap\controller;
 
+use app\admin\model\ump\EventCertImg;
 use app\wap\model\activity\EventRegistration;
 use app\wap\model\activity\EventSignUp;
+use app\wap\model\user\User;
 use basic\WapBasic;
 use think\Db;
 use service\JsonService;
@@ -30,8 +32,52 @@ class Activity extends AuthController
         return [
             'details',
             'index',
-            'activityList'
+            'activityList',
+            'search',
+            'activitySignSearch',
         ];
+    }
+    public function search() {
+        return $this->fetch('activity_search');
+    }
+    /**
+     * 用户报名查询
+     */
+    public function  activitySignSearch($username, $activityName){
+        $user =  User::where('nickname', $username)->find();
+        if (!$user) {
+            $html = '<script>alert("用户不存在");window.history.go(-1)</script>';
+        }else {
+            $activity = EventRegistration::where('title', $activityName)->find();
+            if (!$activity) {
+                $html = '<script>alert("活动不存在");window.history.go(-1)</script>';
+            }else{
+                $model=EventSignUp::where('uid',$user->id)->where('activity_id', $activity->id)->find();
+                if(!$model) {
+                    $html = '<script>alert("用户未报名");window.history.go(-1)</script>';
+                }else{
+                    $html = '
+<header>
+                    <style>html,body{height: 100%;width: 100%;margin:0;padding:0;}  
+body{  
+    background:url(data:image/png;base64,%s)no-repeat;  
+    width:100%;  
+    height:100%;  
+    background-size:100% 100%;  
+    position:absolute;  
+}</style>
+</header>
+<body>
+&nbsp;
+</body>
+';
+                    $img = EventCertImg::where('event_id', $activity->id)->find();
+                    $html = sprintf($html, base64_encode(file_get_contents($img->image)));
+                }
+            }
+        }
+        $this->assign('html', $html);
+        return $this->fetch('activity_search_result');
     }
 
     public function index()
@@ -79,6 +125,7 @@ class Activity extends AuthController
         if($res) return JsonService::successful('核销成功');
         else return JsonService::fail('核销失败');
     }
+
 
     /**
      * 用户报名活动列表
