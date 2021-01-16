@@ -1168,26 +1168,16 @@
     <!-- 表单 -->
 
     <div class="search_contain">
-        <h1 class="search_ts">输入信息查询</h1>
-        <input type="text" id="username" placeholder="请输入报名人姓名" class="search_in"/>
-        <input type="text" id="activityName" placeholder="请输入活动名称" class="search_in"/>
-        <button type="button" class="search_btn  al" style="width :80%; display:inline;     margin-left: 10%;">查询
-        </button>
+        <h1 class="search_ts">查询结果</h1>
+        <img src="{$user->avatar}"/>
+        <input type="text" id="username" value="{$user->nickname}" class="search_in" readonly />
+        <input type="text" id="activityName"  value="{$activity->title}" class="search_in" readonly />
+
         <!--        <button type="button" class="search_btn"style="width :40%; display:inline;" onclick="ling()">领券</button>-->
     </div>
 </div>
 </body>
 <script>
-    //错误提示
-    $(function () {
-        $('.al').click(function () {
-            if ($('#activityName').val() == "" || $('#username').val() == "") {
-                jqtoast('很抱歉，请填写完整信息')
-            } else {
-                window.location.href = '/wap/activity/activitySignSearch?username=' + $('#username').val() + '&activityName=' + $('#activityName').val()
-            }
-        })
-    });
 
 </script>
 </html>
