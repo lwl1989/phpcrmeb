@@ -9,7 +9,7 @@ use app\wap\model\user\User;
 use basic\WapBasic;
 use think\Db;
 use service\JsonService;
-use service\SystemConfigService;
+use service\ImgMergeService;
 use service\UtilService;
 use think\Cookie;
 use think\exception\HttpException;
@@ -63,9 +63,21 @@ class Activity extends AuthController
                 } else {
                     $img = EventCertImg::where('event_id', $activity->id)->find();
                     if ($img) {
-                        $json = json_decode($img->cert_template);
+                        $json = json_decode($img->cert_template, true);
+                        if (is_array($json)) {
+                            $nameArea = explode('x', $json['name']);
+                            $img = ImgMergeService::getImagick($img->image);
+                            $style['font_size'] = 20;
+                            $style['fill_color'] = '#FF0000';
+                            //$style['font'] = 'Eurostile';
+                            ImgMergeService::addText($img,  $user->nickname, $nameArea[0], $nameArea[1], 0, $style);
+                            $base64 = base64_encode($img->getImageBlob());
+                            unset($img);
+                        }else{
+                            $base64 = base64_encode(file_get_contents($img->image));
+                        }
                         //todo:合成
-                        $base64 = base64_encode(file_get_contents($img->image));
+
                         $html = '
 <header>
                     <style>html,body{height: 100%;width: 100%;margin:0;padding:0;}  
