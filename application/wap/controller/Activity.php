@@ -84,7 +84,7 @@ body{
                     } else {
                         $this->assign('user', $user);
                         $this->assign('activity', $activity);
-                        return $this->fetch('activity_search_result1');
+                        return $this->fetch('activity_search_result');
                     }
                 }
             }
