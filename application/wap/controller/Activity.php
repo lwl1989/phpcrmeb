@@ -62,47 +62,67 @@ class Activity extends AuthController
                     $html = '<script>alert("用户未报名");window.history.go(-1)</script>';
                 } else {
                     $img = EventCertImg::where('event_id', $activity->id)->find();
+                    $base64 = '';
+                    //{"name":"123","phone":"13111111111","sex":0,"age":"11","company":"","remarks":"","group":"3","area":"1"}
+                    $userInfo = json_decode($model->user_info, true);
                     if ($img) {
+                        if (strpos($img->image, 'http') !== 0) {
+                            $img->image = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/wap/first/' . ltrim($img->image, '/');
+                        }
+                        //todo:合成
                         $json = json_decode($img->cert_template, true);
                         if (is_array($json)) {
                             $nameArea = explode('x', $json['name']);
+                            $areaArea = explode('x', $json['area']);
+                            $projectArea = explode('x', $json['project']);
+                            $groupArea = explode('x', $json['group']);
+                            $prizeArea = explode('x', $json['prize']);
                             $img = ImgMergeService::getImagick($img->image);
                             $style['font_size'] = 20;
                             $style['fill_color'] = '#FF0000';
                             //$style['font'] = 'Eurostile';
-                            ImgMergeService::addText($img,  $user->nickname, $nameArea[0], $nameArea[1], 0, $style);
+                            ImgMergeService::addText($img, $user->nickname, $nameArea[0], $nameArea[1], 0, $style);
+                            ImgMergeService::addText($img, $model->area, $areaArea[0], $areaArea[1], 0, $style);
+                            ImgMergeService::addText($img, $activity->title, $projectArea[0], $projectArea[1], 0, $style);
+                            ImgMergeService::addText($img, $model->group, $groupArea[0], $groupArea[1], 0, $style);
+                            //ImgMergeService::addText($img, $model->prize, $prizeArea[0], $prizeArea[1], 0, $style);
                             $base64 = base64_encode($img->getImageBlob());
                             unset($img);
-                        }else{
+                        } else {
                             $base64 = base64_encode(file_get_contents($img->image));
                         }
-                        //todo:合成
-
-                        $html = '
-<header>
-                    <style>html,body{height: 100%;width: 100%;margin:0;padding:0;}  
-body{  
-    background:url(data:image/png;base64,' . $base64 . ')no-repeat;  
-    width:100%;  
-    height:100%;  
-    background-size:100% 100%;  
-    position:absolute;  
-}</style>
-</header>
-<body>
-&nbsp;
-</body>
-';
-                    } else {
-                        $this->assign('user', $user);
-                        $this->assign('activity', $activity);
-                        return $this->fetch('activity_search_result');
                     }
+
+                    //                        $html = '
+                    //<header>
+                    //                    <style>html,body{height: 100%;width: 100%;margin:0;padding:0;}
+                    //body{
+                    //    background:url(data:image/png;base64,' . $base64 . ')no-repeat;
+                    //    width:100%;
+                    //    height:100%;
+                    //    background-size:100% 100%;
+                    //    position:absolute;
+                    //}</style>
+                    //</header>
+                    //<body>
+                    //&nbsp;
+                    //</body>
+                    //';
+                    //                    } else {
+                    //
+                    //                    }
+                    $this->assign('base64', $base64);
+                    $this->assign('user', $user);
+                    $this->assign('activity', $activity);
+                    return $this->fetch('activity_search_result');
                 }
             }
         }
-        echo $html;
-        exit;
+        $this->assign('base64', '');
+        $this->assign('html', $html);
+        $this->assign('user', []);
+        $this->assign('activity', []);
+        return $this->fetch('activity_search_result');
 //        $this->assign('html', $html);
 //        return $this->fetch('activity_search_result');
     }

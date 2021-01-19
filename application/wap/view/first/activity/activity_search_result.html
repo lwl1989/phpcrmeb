@@ -1156,6 +1156,10 @@
     <title>报名查询</title>
 </head>
 <body>
+{if !empty($html)}
+{$html}
+{else}
+{if empty($base64)}
 <div class="certificate">
     <!-- 顶部 -->
     <div class="new_top" style="background: rgba(0,0,0,0);">
@@ -1177,6 +1181,12 @@
         <!--        <button type="button" class="search_btn"style="width :40%; display:inline;" onclick="ling()">领券</button>-->
     </div>
 </div>
+{else}
+<div>
+    <img src="data:image/png;base64,{$base64}" width="100%" height="100%"/>
+</div>
+{/if}
+{/if}
 </body>
 <script>
 

@@ -60,6 +60,10 @@ class EventSignUp extends ModelBasic
         }elseif ($userInfo['level']==0 && $activity['pay_type'] == 1 && $activity['price'] > 0){
             $payPrice = $activity['price'];
         }
+        $sign = [];
+        if(is_string($signUp) && $signUp != '') {
+            $sign = json_decode($signUp, true);
+        }
         $data=[
             'order_id'=>self::getNewOrderId(),
             'uid'=>$uid,
@@ -67,6 +71,8 @@ class EventSignUp extends ModelBasic
             'activity_id'=>$id,
             'pay_price'=>$payPrice,
             'pay_type'=>$payType,
+            'group'=> isset($sign['group'])?$sign['group']:'',
+            'area'=> isset($sign['area'])?$sign['area']:'',
         ];
         $order = self::set($data);
         if (!$order) return self::setErrorInfo('报名订单生成失败!');

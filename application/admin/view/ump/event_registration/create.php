@@ -9,13 +9,15 @@
 <script src="{__ADMIN_PATH}frame/js/ajaxfileupload.js"></script>
 <script src="{__ADMIN_PATH}plug/validate/jquery.validate.js"></script>
 <script src="{__FRAME_PATH}js/plugins/chosen/chosen.jquery.js"></script>
-<script type="text/javascript" charset="utf-8" src="{__ADMIN_PATH}plug/ueditor/third-party/zeroclipboard/ZeroClipboard.js"></script>
+<script type="text/javascript" charset="utf-8"
+        src="{__ADMIN_PATH}plug/ueditor/third-party/zeroclipboard/ZeroClipboard.js"></script>
 <script type="text/javascript" charset="utf-8" src="{__ADMIN_PATH}plug/ueditor/ueditor.config.js"></script>
 <script type="text/javascript" charset="utf-8" src="{__ADMIN_PATH}plug/ueditor/ueditor.all.min.js"></script>
 <style>
     .wrapper-content {
         padding: 0 !important;
     }
+
     .layui-form-item .special-label {
         width: 50px;
         float: left;
@@ -65,8 +67,14 @@
     .edui-default .edui-for-image .edui-icon {
         background-position: -380px 0px;
     }
-    .layui-input-block{line-height: 36px;}
-    .layui-form-select dl {z-index: 1000;}
+
+    .layui-input-block {
+        line-height: 36px;
+    }
+
+    .layui-form-select dl {
+        z-index: 1000;
+    }
 </style>
 {/block}
 {block name="content"}
@@ -78,35 +86,41 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <span class="input-group-addon">标题</span>
-                            <input maxlength="64" placeholder="请在这里输入标题" name="title" class="layui-input" id="title"  v-model="formData.title">
+                            <input maxlength="64" placeholder="请在这里输入标题" name="title" class="layui-input" id="title"
+                                   v-model="formData.title">
                         </div>
                     </div>
                 </div>
                 <div class="layui-inline">
                     <label class="layui-form-label">活动报名时间：</label>
                     <div class="layui-input-inline" style="width: 200px;">
-                        <input type="text" name="signup_start_time" placeholder="报名开始时间" id="signup_start_time" class="layui-input"  v-model="formData.signup_start_time">
+                        <input type="text" name="signup_start_time" placeholder="报名开始时间" id="signup_start_time"
+                               class="layui-input" v-model="formData.signup_start_time">
                     </div>
                     <div class="layui-form-mid">-</div>
                     <div class="layui-input-inline" style="width: 200px;">
-                        <input type="text" name="signup_end_time" placeholder="报名结束时间" id="signup_end_time" class="layui-input"  v-model="formData.signup_end_time">
+                        <input type="text" name="signup_end_time" placeholder="报名结束时间" id="signup_end_time"
+                               class="layui-input" v-model="formData.signup_end_time">
                     </div>
                 </div>
                 <div class="layui-inline">
                     <label class="layui-form-label">活动时间：</label>
                     <div class="layui-input-inline" style="width: 200px;">
-                        <input type="text" name="start_time" placeholder="活动开始时间" id="start_time" class="layui-input"  v-model="formData.start_time">
+                        <input type="text" name="start_time" placeholder="活动开始时间" id="start_time" class="layui-input"
+                               v-model="formData.start_time">
                     </div>
                     <div class="layui-form-mid">-</div>
                     <div class="layui-input-inline" style="width: 200px;">
-                        <input type="text" name="end_time" placeholder="活动结束时间" id="end_time" class="layui-input"  v-model="formData.end_time">
+                        <input type="text" name="end_time" placeholder="活动结束时间" id="end_time" class="layui-input"
+                               v-model="formData.end_time">
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-md-12">
                         <div class="input-group">
                             <span class="input-group-addon">人数</span>
-                            <input maxlength="8" placeholder="人数" name="number" class="layui-input" id="number"  v-model="formData.number">
+                            <input maxlength="8" placeholder="人数" name="number" class="layui-input" id="number"
+                                   v-model="formData.number">
                         </div>
                     </div>
                 </div>
@@ -118,7 +132,7 @@
                                 <div class="col-xs-3" style="width:160px">
                                     <img :src="formData.image" alt="" style="width:100px">
                                 </div>
-                                <div class="col-xs-6"  @click="upload('image')">
+                                <div class="col-xs-6" @click="upload('image')">
                                     <br>
                                     <a class="btn btn-sm add_image upload_span">上传图片</a>
                                     <br>
@@ -136,7 +150,7 @@
                                 <div class="col-xs-3" style="width:160px">
                                     <img :src="formData.qrcode_img" alt="" style="width:100px">
                                 </div>
-                                <div class="col-xs-6"  @click="upload('qrcode_img')">
+                                <div class="col-xs-6" @click="upload('qrcode_img')">
                                     <br>
                                     <a class="btn btn-sm add_image upload_span">上传图片</a>
                                     <br>
@@ -147,56 +161,98 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="col-md-12">
-                        <div class="form-control" style="height:auto">
-                            <label style="color:#ccc">证书模板图片设置</label>
-                            <div class="row nowrap">
-                                <div class="col-xs-3" style="width:160px">
-                                    <img :src="formData.cert_img" alt="" style="width:100px">
-                                </div>
-                                <div class="col-xs-6"  @click="upload('cert_img')">
-                                    <br>
-                                    <a class="btn btn-sm add_image upload_span">上传图片</a>
-                                    <br>
-                                    <br>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="form-group">
                     <div class="col-md-12">
                         <label style="color:#aaa">地址</label>
                         <div class="col-md-12">
                             <div class="layui-form">
-                            <div class="layui-form-item col-md-6" id="area-picker">
-                                <div class="layui-input-inline col-md-4">
-                                    <select name="province" v-model="formData.province" class="province-selector" :data-value="formData.province" lay-filter="province-1" >
-                                        <option value="">请选择省</option>
-                                    </select>
+                                <div class="layui-form-item col-md-6" id="area-picker">
+                                    <div class="layui-input-inline col-md-4">
+                                        <select name="province" v-model="formData.province" class="province-selector"
+                                                :data-value="formData.province" lay-filter="province-1">
+                                            <option value="">请选择省</option>
+                                        </select>
+                                    </div>
+                                    <div class="layui-input-inline col-md-4">
+                                        <select name="city" v-model="formData.city" class="city-selector"
+                                                :data-value="formData.city" lay-filter="city-1">
+                                            <option value="">请选择市</option>
+                                        </select>
+                                    </div>
+                                    <div class="layui-input-inline col-md-4">
+                                        <select name="county" v-model="formData.district" class="county-selector"
+                                                :data-value="formData.district" lay-filter="county-1">
+                                            <option value="">请选择区</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="layui-input-inline col-md-4">
-                                    <select name="city" v-model="formData.city"  class="city-selector" :data-value="formData.city" lay-filter="city-1">
-                                        <option value="">请选择市</option>
-                                    </select>
+                                <input id="address" class="layui-input col-md-6" v-model="formData.detail"
+                                       placeholder="详细地址"
+                                       style="height:30px;resize:none;line-height:20px;color:#333;width:auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label style="color:#aaa">赛区</label>
+                            <button id="add" type="button" class="layui-btn layui-btn-warm layui-btn-sm"
+                                    @click='addArea()'>
+                                <i class="layui-icon">&#xe654;</i>
+                            </button>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="layui-form-item" v-for="(list,index) in formData.areas">
+                                <div class="layui-input-inline">
+
+                                    <input type="text" name="areas[]" placeholder="请输入"
+                                           autocomplete="off" class="form-control" style="width: 150%;" :key="index" v-model="formData.areas[index]">
+
                                 </div>
-                                <div class="layui-input-inline col-md-4">
-                                    <select name="county" v-model="formData.district" class="county-selector" :data-value="formData.district" lay-filter="county-1">
-                                        <option value="">请选择区</option>
-                                    </select>
+                                <div class="layui-input-block" style="margin-left: 480px">
+                                    <button id="add" type="button" class="layui-btn layui-btn-warm layui-btn-sm"
+                                            @click='delArea(index)'>
+                                        <i class="layui-icon">&#xe67e;</i>
+                                    </button>
                                 </div>
                             </div>
-                            <input  id="address"  class="layui-input col-md-6" v-model="formData.detail" placeholder="详细地址" style="height:30px;resize:none;line-height:20px;color:#333;width:auto;">
                         </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <div class="col-md-12">
+                            <label style="color:#aaa">组别</label>
+                            <button id="add" type="button" class="layui-btn layui-btn-warm layui-btn-sm"
+                                    @click="addGroup()">
+                                <i class="layui-icon">&#xe654;</i>
+                            </button>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="layui-form-item" v-for="(list,index) in formData.groups">
+                                <div class="layui-input-inline">
+                                    <input type="text" name="areas[]" placeholder="请输入"
+                                           autocomplete="off" class="form-control" style="width: 150%;" :key="index" v-model="formData.groups[index]">>
+                                </div>
+                                <div class="layui-input-block" style="margin-left: 480px">
+                                    <button id="add" type="button" class="layui-btn layui-btn-warm layui-btn-sm"
+                                            @click="delGroup(index)">
+                                        <i class="layui-icon">&#xe67e;</i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-md-12">
                         <label style="color:#aaa">活动规则</label>
-                        <textarea  type="text/plain" id="myEditor1" style="width:100%;">{{formData.activity_rules}}</textarea>
+                        <textarea type="text/plain" id="myEditor1"
+                                  style="width:100%;">{{formData.activity_rules}}</textarea>
                     </div>
                 </div>
                 <div class="form-group">
@@ -208,14 +264,16 @@
                 <div class="form-group">
                     <div class="col-md-6">
                         <label style="display:block"><span style="color:#aaa;">排序</span>
-                            <input maxlength="5" type="number" v-model="formData.sort" name="sort" class="layui-input" id="sort" >
+                            <input maxlength="5" type="number" v-model="formData.sort" name="sort" class="layui-input"
+                                   id="sort">
                         </label>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-md-6">
                         <label style="display:block"><span style="color:#aaa;">限购(设置每人可购买的次数，0为不限购)</span>
-                            <input  type="text" v-model="formData.restrictions" name="restrictions" class="layui-input" id="restrictions" >
+                            <input type="text" v-model="formData.restrictions" name="restrictions" class="layui-input"
+                                   id="restrictions">
                         </label>
                     </div>
                 </div>
@@ -224,14 +282,14 @@
                         <div class="col-md-6">
                             <label style="color:#aaa">活动状态</label>
                             <br/>
-                            <input type="radio" name="is_show" class="layui-radio" value="0" v-model="formData.is_show" >不显示
-                            <input type="radio" name="is_show" class="layui-radio" value="1" v-model="formData.is_show" >显示
+                            <input type="radio" name="is_show" class="layui-radio" value="0" v-model="formData.is_show">不显示
+                            <input type="radio" name="is_show" class="layui-radio" value="1" v-model="formData.is_show">显示
                         </div>
                         <div class="col-md-6">
                             <label style="color:#aaa">是否填写资料</label>
                             <br/>
-                            <input type="radio" name="is_fill" class="layui-radio" value="0" v-model="formData.is_fill" >不填写
-                            <input type="radio" name="is_fill" class="layui-radio" value="1" v-model="formData.is_fill" >填写
+                            <input type="radio" name="is_fill" class="layui-radio" value="0" v-model="formData.is_fill">不填写
+                            <input type="radio" name="is_fill" class="layui-radio" value="1" v-model="formData.is_fill">填写
                         </div>
                     </div>
                 </div>
@@ -267,8 +325,10 @@
                                     <div class="layui-form-item" v-show="formData.member_pay_type == 1">
                                         <label class="layui-form-label">会员购买金额</label>
                                         <div class="layui-input-block">
-                                            <input style="width: 20%" type="number" name="member_money" lay-verify="number"
-                                                   v-model="formData.member_price" autocomplete="off" class="layui-input" min="0">
+                                            <input style="width: 20%" type="number" name="member_money"
+                                                   lay-verify="number"
+                                                   v-model="formData.member_price" autocomplete="off"
+                                                   class="layui-input" min="0">
                                         </div>
                                     </div>
                                 </div>
@@ -280,7 +340,8 @@
                     <div class="row">
                         <div class="col-md-offset-4 col-md-9">
                             <button type="button" class="btn btn-w-m btn-info save_news" @click="save">{$id ?
-                                '确认修改':'立即提交'}</button>
+                                '确认修改':'立即提交'}
+                            </button>
                             <button class="layui-btn layui-btn-primary clone" type="button" @click="clone_form">取消
                             </button>
                         </div>
@@ -295,13 +356,13 @@
 {/block}
 {block name="script"}
 <script>
-    var id = {$id},news ={$news};
-    require(['vue','zh-cn','request','aliyun-oss','plupload','OssUpload'], function (Vue) {
+    var id = {$id}, news = {$news};
+    require(['vue', 'zh-cn', 'request', 'aliyun-oss', 'plupload', 'OssUpload'], function (Vue) {
         new Vue({
             el: "#app",
             data: {
                 formData: {
-                    id:id,
+                    id: id,
                     title: news.title || '',
                     image: news.image || '{__ADMIN_PATH}images/empty.jpg',
                     qrcode_img: news.qrcode_img || '{__ADMIN_PATH}images/empty.jpg',
@@ -324,6 +385,8 @@
                     price: news.price || 0,
                     member_pay_type: news.member_pay_type == 1 ? 1 : 0,
                     member_price: news.member_price || '',
+                    areas: news.areas,
+                    groups: news.groups,
                 },
                 host: ossUpload.host + '/',
                 mask: {
@@ -339,6 +402,18 @@
                 },
             },
             methods: {
+                delArea: function (index) {
+                    this.formData.areas.splice(index, 1);
+                },
+                addArea: function () {
+                    this.formData.areas.push("")
+                },
+                delGroup: function (index) {
+                    this.formData.groups.splice(index, 1);
+                },
+                addGroup: function () {
+                    this.formData.groups.push("")
+                },
                 //取消
                 cancelUpload: function () {
                     this.uploader.stop();
@@ -396,7 +471,10 @@
                 },
                 //上传图片
                 upload: function (key, count) {
-                    ossUpload.createFrame('请选择图片', {fodder: key, max_count: count === undefined ? 0 : count},{w:800,h:550});
+                    ossUpload.createFrame('请选择图片', {fodder: key, max_count: count === undefined ? 0 : count}, {
+                        w: 800,
+                        h: 550
+                    });
                 },
                 delLabel: function (index) {
                     this.formData.label.splice(index, 1);
@@ -407,14 +485,14 @@
                     that.formData.content = that.ue.getContent();
                     that.formData.activity_rules = that.ue1.getContent();
                     if (!that.formData.title) return layList.msg('请输入专题标题');
-                    if (that.formData.image=='{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传专题封面');
-                    if (that.formData.qrcode_img=='{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传群聊二维码');
+                    if (that.formData.image == '{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传专题封面');
+                    if (that.formData.qrcode_img == '{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传群聊二维码');
                     if (!that.formData.number) return layList.msg('请填写活动人数');
                     if (!that.formData.start_time) return layList.msg('请选择活动开始时间');
                     if (!that.formData.end_time) return layList.msg('请选择活动结束时间');
                     if (!that.formData.signup_start_time) return layList.msg('请填写活动报名开始时间');
                     if (!that.formData.signup_end_time) return layList.msg('请填写活动报名结束时间');
-                    if (!that.formData.province || !that.formData.city || !that.formData.district ||!that.formData.detail) return layList.msg('请输入地址信息');
+                    if (!that.formData.province || !that.formData.city || !that.formData.district || !that.formData.detail) return layList.msg('请输入地址信息');
                     if (!that.formData.activity_rules) return layList.msg('请输入规则');
                     if (!that.formData.content) return layList.msg('请编辑内容在进行保存');
                     if (that.formData.pay_type == 1) {
@@ -463,7 +541,7 @@
                     base: '{__ADMIN_PATH}mods/'
                     , version: '1.0'
                 }).extend({
-                    layarea:'layarea'
+                    layarea: 'layarea'
                 });
                 layui.use(['layarea'], function () {
                     var layarea = layui.layarea;
@@ -471,9 +549,9 @@
                         elem: '#area-picker',
                         change: function (res) {
                             //选择结果
-                            that.formData.province= res.province;
-                            that.formData.city= res.city;
-                            that.formData.district= res.county;
+                            that.formData.province = res.province;
+                            that.formData.city = res.city;
+                            that.formData.district = res.county;
                         }
                     });
                 });
@@ -510,6 +588,7 @@
                         that.formData.signup_end_time = value;
                     }
                 });
+
                 //选择图片
                 function changeIMG(index, pic) {
                     $(".image_img").css('background-image', "url(" + pic + ")");
@@ -517,10 +596,10 @@
                     $('#image_input').val(pic);
                 };
                 //选择图片插入到编辑器中
-                window.insertEditor = function (list,fodder) {
-                    if(fodder=='editor'){
+                window.insertEditor = function (list, fodder) {
+                    if (fodder == 'editor') {
                         that.ue.execCommand('insertimage', list);
-                    }else if(fodder=='editors'){
+                    } else if (fodder == 'editors') {
                         that.ue1.execCommand('insertimage', list);
                     }
                 };
@@ -531,7 +610,7 @@
                         var $btn = new UE.ui.Button({
                             name: 'image',
                             onclick: function () {
-                                ossUpload.createFrame('选择图片', {fodder: 'editor'},{w:800,h:550});
+                                ossUpload.createFrame('选择图片', {fodder: 'editor'}, {w: 800, h: 550});
                             },
                             title: '选择图片'
                         });
@@ -546,7 +625,7 @@
                         var $btn = new UE.ui.Button({
                             name: 'image',
                             onclick: function () {
-                                ossUpload.createFrame('选择图片', {fodder: 'editors'},{w:800,h:550});
+                                ossUpload.createFrame('选择图片', {fodder: 'editors'}, {w: 800, h: 550});
                             },
                             title: '选择图片'
                         });
@@ -562,7 +641,8 @@
                         that.formData.member_pay_type = 0;
                         that.formData.member_price = 0;
                         that.formData.price = 0;
-                    };
+                    }
+                    ;
                     that.$nextTick(function () {
                         layList.form.render('radio');
                     });
@@ -571,7 +651,8 @@
                     that.formData.member_pay_type = parseInt(data.value);
                     if (that.formData.member_pay_type != 1) {
                         that.formData.member_price = 0;
-                    };
+                    }
+                    ;
                     that.$nextTick(function () {
                         layList.form.render('radio');
                     });

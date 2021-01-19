@@ -69,12 +69,16 @@ class EventRegistration extends AuthController
         $news['price'] = 0;
         $news['member_pay_type'] = 0;
         $news['member_price'] = 0;
+        $news['groups'] = [];
+        $news['areas'] = [];
         if ($id) {
             $news = EventRegistrationModel::where('id', $id)->find();
             $news['signup_start_time'] = date('Y-m-d H:i:s', $news['signup_start_time']);
             $news['signup_end_time'] = date('Y-m-d H:i:s', $news['signup_end_time']);
             $news['start_time'] = date('Y-m-d H:i:s', $news['start_time']);
             $news['end_time'] = date('Y-m-d H:i:s', $news['end_time']);
+            $news['groups'] = explode(',',$news['group']);
+            $news['areas'] = explode(',',$news['area']);
             if (!$news) return $this->failed('数据不存在!');
         } else {
             $id = 0;
@@ -126,11 +130,19 @@ class EventRegistration extends AuthController
             'member_price',
             ['is_fill', 1],
             ['is_show', 0],
+          //  'areas',
+           // 'groups'
         ]);
         $data['signup_start_time'] = strtotime($data['signup_start_time']);
         $data['signup_end_time'] = strtotime($data['signup_end_time']);
         $data['start_time'] = strtotime($data['start_time']);
         $data['end_time'] = strtotime($data['end_time']);
+        $data['groups'] = $_POST['groups']?:[];
+        $data['areas'] = $_POST['areas']?:[];
+        $data['group'] = implode(',', $data['groups']);
+        $data['area'] = implode(',', $data['areas']);
+        unset($data['groups']);
+        unset($data['areas']);
         if (bcsub($data['signup_end_time'], $data['signup_start_time'], 0) <= 0 || bcsub($data['start_time'], $data['signup_end_time'], 0) <= 0 || bcsub($data['end_time'], $data['start_time'], 0) <= 0) return Json::fail('活动时间有误');
         if (!$data['pay_type']) {
             $data['price'] = 0;

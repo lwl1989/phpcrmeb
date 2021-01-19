@@ -46,6 +46,8 @@ class EventRegistration extends ModelBasic
             $activity['signup_end_time']=date('Y-m-d H:i',$activity['signup_end_time']);
             $activity['start_time']=date('Y-m-d H:i',$activity['start_time']);
             $activity['end_time']=date('Y-m-d H:i',$activity['end_time']);
+            $activity['groups'] = explode(',',$activity['group']);
+            $activity['areas'] = explode(',',$activity['area']);
         }
         return $activity;
     }

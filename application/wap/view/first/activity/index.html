@@ -8,6 +8,7 @@
     }
    .link .cont{display:inline-block;vertical-align:middle;font-weight:400;font-size:.18rem;line-height:.36rem;color:#666;}
     .link .cont img{width:0.4rem;height:0.4rem;margin:auto;display: block;}
+
 </style>
 {/block}
 {block name="content"}
@@ -102,6 +103,20 @@
                         <span class="name">年龄</span>
                         <input v-model="signs.age" type="number" class="input" placeholder="请填写您的年龄">
                     </label>
+                    <label class="label" v-if="activity.areas.length>0">
+                        <span class="name">赛区</span>
+                        <select  class="input select" v-model="signs.area" >
+                            <option value="">请选择赛区</option>
+                            <option  v-for="area in activity.areas" :value="area" width="50%">{{area}}</option>
+                        </select>
+                    </label>
+                    <label class="label" v-if="activity.groups.length>0">
+                        <span class="name">组别</span>
+                        <select class="input select" v-model="signs.group" >
+                            <option value="">请选择组别</option>
+                            <option  v-for="group in activity.groups" :value="group" width="50%">{{group}}</option>
+                        </select>
+                    </label>
                     <label class="label">
                         <span class="name">公司</span>
                         <input v-model.trim="signs.company" class="input" placeholder="请填写您的公司">
@@ -141,6 +156,8 @@
                     age: '',
                     company: '',
                     remarks: '',
+                    group:'',
+                    area:'',
                 },
                 open:false,
                 activity:activity,
@@ -185,6 +202,16 @@
                         }
                         if (!$reg.isPhone(this.signs.phone) && this.is_fill) {
                             return $h.pushMsgOnce('请填写您的手机号');
+                        }
+                        if(this.signs.area === "") {
+                            if(this.activity.areas.length > 0) {
+                                return $h.pushMsgOnce('请选择赛区');
+                            }
+                        }
+                        if(this.signs.group === "") {
+                            if(this.activity.groups.length > 0) {
+                                return $h.pushMsgOnce('请选择组别');
+                            }
                         }
                         if(isMember){
                             this.money=this.activity.member_pay_type ? this.activity.member_price :0;
