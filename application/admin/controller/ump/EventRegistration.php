@@ -225,14 +225,16 @@ class EventRegistration extends AuthController
      */
     public function image_template()
     {
-        $data = parent::postMore(['event_id', 'image', 'name', 'area', 'project', 'group', 'prize']);
+        $data = parent::postMore(['event_id', 'image', 'name', 'area','group', 'prize','name_font', 'area_font','group_font', 'prize_font']);
         $tp = $data;
         unset($tp['event_id']);
         unset($tp['image']);
         foreach ($tp as $k=>$v) {
-            $vArr = explode( 'x', $v);
-            if(count($vArr)!=2) {
-                return Json::fail('参数格式不对，请使用数字x数字'.$k.$v.strval(count($vArr)));
+            if(strpos($k, 'font') === false) {
+                $vArr = explode('x', $v);
+                if (count($vArr) != 2) {
+                    return Json::fail('位置参数格式不对，请使用数字x数字' . $k . $v . strval(count($vArr)));
+                }
             }
         }
         EventCertImg::create([

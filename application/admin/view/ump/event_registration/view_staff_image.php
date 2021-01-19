@@ -83,8 +83,17 @@
                         <div class="input-group">
                             <label class="layui-form-label">名字像素位置:</label>
                             <div class="layui-input-block">
-                                <input type="text" name="real_name" style="width: 50%" v-model="formData.name"
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.name"
                                        placeholder="123x123" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <label class="layui-form-label">名字字体设置:</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.name_font"
+                                       placeholder="数字，单位为像素" class="layui-input">
                             </div>
                         </div>
                     </div>
@@ -92,26 +101,53 @@
                         <div class="input-group">
                             <label class="layui-form-label">赛区像素位置:</label>
                             <div class="layui-input-block">
-                                <input type="text" name="real_name" style="width: 50%" v-model="formData.area"
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.area"
                                        placeholder="123x123" class="layui-input">
                             </div>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <div class="input-group">
-                            <label class="layui-form-label">项目像素位置:</label>
+                            <label class="layui-form-label">赛区字体设置:</label>
                             <div class="layui-input-block">
-                                <input type="text" name="real_name" style="width: 50%" v-model="formData.project"
-                                       placeholder="123x123" class="layui-input">
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.area_font"
+                                       placeholder="数字，单位为像素" class="layui-input">
                             </div>
                         </div>
                     </div>
+<!--                    <div class="col-md-12">-->
+<!--                        <div class="input-group">-->
+<!--                            <label class="layui-form-label">项目像素位置:</label>-->
+<!--                            <div class="layui-input-block">-->
+<!--                                <input type="text" name="real_name" style="width: 150%" v-model="formData.project"-->
+<!--                                       placeholder="123x123" class="layui-input">-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-md-12">-->
+<!--                        <div class="input-group">-->
+<!--                            <label class="layui-form-label">组别字体设置:</label>-->
+<!--                            <div class="layui-input-block">-->
+<!--                                <input type="text" name="real_name" style="width: 150%" v-model="formData.group_font"-->
+<!--                                       placeholder="数字，单位为像素" class="layui-input">-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">组别像素位置:</label>
                             <div class="layui-input-block">
-                                <input type="text" name="real_name" style="width: 50%" v-model="formData.group"
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.group"
                                        placeholder="123x123" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <label class="layui-form-label">组别字体设置:</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.group_font"
+                                       placeholder="数字，单位为像素" class="layui-input">
                             </div>
                         </div>
                     </div>
@@ -119,8 +155,17 @@
                         <div class="input-group">
                             <label class="layui-form-label">奖项像素位置:</label>
                             <div class="layui-input-block">
-                                <input type="text" name="real_name" style="width: 50%" v-model="formData.prize"
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.prize"
                                        placeholder="123x123" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <label class="layui-form-label">奖项字体设置:</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="real_name" style="width: 150%" v-model="formData.prize_font"
+                                       placeholder="数字，单位为像素" class="layui-input">
                             </div>
                         </div>
                     </div>
@@ -173,9 +218,14 @@
                     image:img.image,
                     name:img.name,
                     area:img.area,
-                    project:img.project,
+                  //  project:img.project,
                     group:img.group,
-                    prize:img.prize
+                    prize:img.prize,
+                    name:img.name_font,
+                    area:img.area_font,
+                    //  project:img.project,
+                    group:img.group_font,
+                    prize:img.prize_font,
                 },
                 host: ossUpload.host + '/',
                 mask: {
