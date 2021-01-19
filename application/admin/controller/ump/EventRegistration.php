@@ -259,13 +259,13 @@ class EventRegistration extends AuthController
     }
 
     /**用户活动核销
-     * @param string $order_id
-     * @param int $aid
-     * @param string $code
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
+ * @param string $order_id
+ * @param int $aid
+ * @param string $code
+ * @throws \think\db\exception\DataNotFoundException
+ * @throws \think\db\exception\ModelNotFoundException
+ * @throws \think\exception\DbException
+ */
     public function scanCodeSignIn($id)
     {
         if (!$id) $this->failed('参数有误！');
@@ -273,6 +273,21 @@ class EventRegistration extends AuthController
         if (!$order) $this->failed('订单不存在！');
         if ($order['status']) $this->failed('订单已核销！');
         $res = EventSignUpModel::where('id', $id)->where('paid', 1)->update(['status' => 1]);
+        if ($res) return Json::successful('ok');
+        else return Json::fail('核销失败');
+    }
+
+    /** 设置用户奖项
+     * @param string $id
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function setPrize($id)
+    {
+        if (!$id) $this->failed('参数有误！');
+        //$order = EventSignUpModel::where('id', $id)->find();
+        $res = EventSignUpModel::where('id', $id)->update(['prize' => $this->request->post('prize')]);
         if ($res) return Json::successful('ok');
         else return Json::fail('核销失败');
     }

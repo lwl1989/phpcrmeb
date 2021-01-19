@@ -48,8 +48,8 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript:void(0)"  onclick="action.open_add('{:Url('view_staff_image')}?id={{d.id}}','海报设置')" >
-                                    <i class="fa fa-paste"></i> 海报设置
+                                <a href="javascript:void(0)"  onclick="action.open_add('{:Url('view_staff_image')}?id={{d.id}}','证书设置')" >
+                                    <i class="fa fa-paste"></i> 证书设置
                                 </a>
                             </li>
                             <li>
@@ -130,6 +130,9 @@
             }, function (err) {
                 layList.msg(err.msg);
             });
+        },
+        open_dialog: function(id) {
+
         },
         //打开新添加页面
         open_add: function (url,title) {
