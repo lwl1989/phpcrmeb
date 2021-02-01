@@ -45,6 +45,9 @@ class Activity extends AuthController
     {
         $secret ='';
 
+
+
+
         $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'];
 
         if ($signature) {
