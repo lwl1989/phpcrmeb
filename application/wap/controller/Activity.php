@@ -36,7 +36,26 @@ class Activity extends AuthController
             'activityList',
             'search',
             'activitySignSearch',
+            'webhook'
         ];
+    }
+
+    public function webhook()
+    {
+        $secret = env('HOOK_GIT', '');
+
+        $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'];
+
+        if ($signature) {
+            $hash = "sha1=" . hash_hmac('sha1', file_get_contents("php://input"), $secret);
+            if (strcmp($signature, $hash) == 0) {
+                echo shell_exec('cd /www && git pull');
+                exit();
+            }
+        }
+
+
+        return [];
     }
 
     public function search()
@@ -81,12 +100,12 @@ class Activity extends AuthController
                             $style['font_size'] = 20;
                             $style['fill_color'] = '#FF0000';
                             $style['font'] = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/wap/first/zsff/cret_img/GB2312.ttf';
-                            if(isset($nameArea[1]) and $nameArea[1] >0 and isset($json['name_font'])) {
+                            if (isset($nameArea[1]) and $nameArea[1] > 0 and isset($json['name_font'])) {
                                 $style['font_size'] = $json['name_font'];
                                 ImgMergeService::addText($img, $user->nickname, $nameArea[0], $nameArea[1], 0, $style);
                             }
 
-                            if($model->area != "" and isset($areaArea[1]) and $areaArea[1] > 0) {
+                            if ($model->area != "" and isset($areaArea[1]) and $areaArea[1] > 0) {
                                 if (isset($json['area_font'])) {
                                     $style['font_size'] = $json['area_font'];
                                 }
@@ -94,14 +113,14 @@ class Activity extends AuthController
                             }
 
                             //ImgMergeService::addText($img, $activity->title, $projectArea[0], $projectArea[1], 0, $style);
-                            if($model->group != "" and isset($groupArea[1]) and $groupArea[1] > 0) {
+                            if ($model->group != "" and isset($groupArea[1]) and $groupArea[1] > 0) {
                                 if (isset($json['group_font'])) {
                                     $style['font_size'] = $json['group_font'];
                                 }
                                 ImgMergeService::addText($img, $model->group, $groupArea[0], $groupArea[1], 0, $style);
                             }
 
-                            if($model->prize != "" and isset($prizeArea[1]) and $prizeArea[1] > 0) {
+                            if ($model->prize != "" and isset($prizeArea[1]) and $prizeArea[1] > 0) {
                                 if (isset($json['prize_font'])) {
                                     $style['font_size'] = $json['prize_font'];
                                 }
