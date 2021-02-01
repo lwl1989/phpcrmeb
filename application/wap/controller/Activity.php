@@ -48,17 +48,18 @@ class Activity extends AuthController
 
 
 
-        $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'];
+        $signature = $_SERVER['HTTP_X_HUB_SIGNATURE']?:'';
 
-        if ($signature) {
-            $hash = "sha1=" . hash_hmac('sha1', file_get_contents("php://input"), $secret);
-            if (strcmp($signature, $hash) == 0) {
-                echo shell_exec('cd /www && git pull');
-                exit();
-            }
-        }
+//        if ($signature) {
+//            $hash = "sha1=" . hash_hmac('sha1', file_get_contents("php://input"), $secret);
+//            if (strcmp($signature, $hash) == 0) {
+//                echo shell_exec('cd /www && git pull');
+//                exit();
+//            }
+//        }
 
-
+        echo shell_exec('cd /www && git pull');
+        exit();
         return [];
     }
 
