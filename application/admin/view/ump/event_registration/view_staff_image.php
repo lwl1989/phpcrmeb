@@ -82,7 +82,7 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">名字像素位置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.name"
                                        placeholder="123x123" class="layui-input">
                             </div>
@@ -91,7 +91,7 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">名字字体设置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.name_font"
                                        placeholder="数字，单位为像素" class="layui-input">
                             </div>
@@ -100,7 +100,7 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">赛区像素位置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.area"
                                        placeholder="123x123" class="layui-input">
                             </div>
@@ -109,34 +109,34 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">赛区字体设置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.area_font"
                                        placeholder="数字，单位为像素" class="layui-input">
                             </div>
                         </div>
                     </div>
-<!--                    <div class="col-md-12">-->
-<!--                        <div class="input-group">-->
-<!--                            <label class="layui-form-label">项目像素位置:</label>-->
-<!--                            <div class="layui-input-block">-->
-<!--                                <input type="text" name="real_name" style="width: 150%" v-model="formData.project"-->
-<!--                                       placeholder="123x123" class="layui-input">-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="col-md-12">-->
-<!--                        <div class="input-group">-->
-<!--                            <label class="layui-form-label">组别字体设置:</label>-->
-<!--                            <div class="layui-input-block">-->
-<!--                                <input type="text" name="real_name" style="width: 150%" v-model="formData.group_font"-->
-<!--                                       placeholder="数字，单位为像素" class="layui-input">-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <!--                    <div class="col-md-12">-->
+                    <!--                        <div class="input-group">-->
+                    <!--                            <label class="layui-form-label">项目像素位置:</label>-->
+                    <!--                            <div class="layui-input-inline">-->
+                    <!--                                <input type="text" name="real_name" style="width: 150%" v-model="formData.project"-->
+                    <!--                                       placeholder="123x123" class="layui-input">-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="col-md-12">-->
+                    <!--                        <div class="input-group">-->
+                    <!--                            <label class="layui-form-label">组别字体设置:</label>-->
+                    <!--                            <div class="layui-input-inline">-->
+                    <!--                                <input type="text" name="real_name" style="width: 150%" v-model="formData.group_font"-->
+                    <!--                                       placeholder="数字，单位为像素" class="layui-input">-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">组别像素位置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.group"
                                        placeholder="123x123" class="layui-input">
                             </div>
@@ -145,7 +145,7 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">组别字体设置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.group_font"
                                        placeholder="数字，单位为像素" class="layui-input">
                             </div>
@@ -154,7 +154,7 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">奖项像素位置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.prize"
                                        placeholder="123x123" class="layui-input">
                             </div>
@@ -163,7 +163,7 @@
                     <div class="col-md-12">
                         <div class="input-group">
                             <label class="layui-form-label">奖项字体设置:</label>
-                            <div class="layui-input-block">
+                            <div class="layui-input-inline">
                                 <input type="text" name="real_name" style="width: 150%" v-model="formData.prize_font"
                                        placeholder="数字，单位为像素" class="layui-input">
                             </div>
@@ -191,6 +191,8 @@
                 <div class="form-actions">
                     <div class="row">
                         <div class="col-md-offset-4 col-md-9">
+                            <button type="button" class="btn btn-w-m btn-info save_news" @click="preview">点击预览
+                            </button>
                             <button type="button" class="btn btn-w-m btn-info save_news" @click="save">{$id ?
                                 '确认修改':'立即提交'}
                             </button>
@@ -215,17 +217,17 @@
             data: {
                 formData: {
                     event_id: {$event_id},
-                    image:img.image,
-                    name:img.name,
-                    area:img.area,
-                  //  project:img.project,
-                    group:img.group,
-                    prize:img.prize,
-                    name:img.name_font,
-                    area:img.area_font,
+                    image: img.image,
+                    name: img.name,
+                    area: img.area,
                     //  project:img.project,
-                    group:img.group_font,
-                    prize:img.prize_font,
+                    group: img.group,
+                    prize: img.prize,
+                    name_font: img.name_font,
+                    area_font: img.area_font,
+                    //  project:img.project,
+                    group_font: img.group_font,
+                    prize_font: img.prize_font,
                 },
                 host: ossUpload.host + '/',
                 mask: {
@@ -300,12 +302,40 @@
                     this.formData.label.splice(index, 1);
                     this.$set(this.formData, 'label', this.formData.label);
                 },
+                preview: function () {
+                    var that = this;
+                    if (that.formData.image == '{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传图片');
+                    var url = layList.U({
+                        a: 'preview',
+                    });
+                    for (let p in that.formData) {
+                        if (that.formData.hasOwnProperty(p)) {
+                            if(that.formData[p] === "") {
+                                return layList.msg('请完善表单资料');
+                            }
+                        }
+                    }
+                    window.open(url + "?" + that.serialize(that.formData));
+                },
+                serialize: function (obj) {
+                    var str = [];
+                    for (var p in obj) {
+                        if (obj.hasOwnProperty(p)) {
+                            let v = String(obj[p]);
+                            // if(p !== "image")  {
+                            //     v.replace(/x/, ',')
+                            // }
+                            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(v));
+                        }
+                    }
+                    return str.join("&");
+                },
                 save: function () {
                     var that = this;
                     // that.formData.content = that.ue.getContent();
                     // that.formData.activity_rules = that.ue1.getContent();
                     // if (!that.formData.title) return layList.msg('请输入专题标题');
-                     if (that.formData.image == '{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传图片');
+                    if (that.formData.image == '{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传图片');
                     // if (that.formData.qrcode_img == '{__ADMIN_PATH}images/empty.jpg') return layList.msg('请上传群聊二维码');
                     // if (!that.formData.number) return layList.msg('请填写活动人数');
                     // if (!that.formData.start_time) return layList.msg('请选择活动开始时间');
@@ -340,7 +370,7 @@
                     if (parseInt(id) == 0) {
                         if (that.formData.image) return layList.msg('请先删除上传的图片在尝试取消');
                         parent.layer.closeAll();
-                    }else {
+                    } else {
                         parent.layer.closeAll();
                     }
                 }

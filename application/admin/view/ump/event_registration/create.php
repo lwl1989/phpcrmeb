@@ -236,7 +236,7 @@
                             <div class="layui-form-item" v-for="(list,index) in formData.groups">
                                 <div class="layui-input-inline">
                                     <input type="text" name="areas[]" placeholder="请输入"
-                                           autocomplete="off" class="form-control" style="width: 150%;" :key="index" v-model="formData.groups[index]">>
+                                           autocomplete="off" class="form-control" style="width: 150%;" :key="index" v-model="formData.groups[index]">
                                 </div>
                                 <div class="layui-input-block" style="margin-left: 480px">
                                     <button id="add" type="button" class="layui-btn layui-btn-warm layui-btn-sm"

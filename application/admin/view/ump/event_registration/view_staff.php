@@ -68,8 +68,8 @@
                         {{# } }}
                     </script>
                     <script type="text/html" id="act_prize">
-                        <input class="layui-input-inline"  v-model="d.prize" value="{{ d.prize }}"  id="prize_{{ d.id }}" width="30%" />
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" lay-event='set_prize'>保存奖项名称</button>
+                        <input class="layui-input inline"  v-model="d.prize" value="{{ d.prize }}"  id="prize_{{ d.id }}" width="80" />
+                        <button type="button" class="layui-btn layui-btn-xs" lay-event='set_prize'>保存奖项</button>
                     </script>
 
                 </div>

@@ -4,6 +4,7 @@ namespace app\admin\controller\ump;
 
 use app\admin\controller\AuthController;
 use app\admin\model\ump\EventCertImg;
+use service\ImgMergeService;
 use service\JsonService as Json;
 use service\UploadService as Upload;
 use think\Request;
@@ -197,6 +198,64 @@ class EventRegistration extends AuthController
     }
 
     /**
+     * 预览海报
+     */
+    public function preview()
+    {
+        $data = parent::getMore(['event_id', 'image', 'name', 'area','group', 'prize','name_font', 'area_font','group_font', 'prize_font']);
+        $json = $data;
+        unset($json['event_id']);
+        unset($json['image']);
+        foreach ($json as $k=>$v) {
+            if(strpos($k, 'font') === false) {
+                $vArr = explode('x', $v);
+                if (count($vArr) != 2) {
+                    echo '位置参数格式不对，请使用数字x数字,' . $k ."=". $v . strval(count($vArr));exit();
+                }
+            }
+        }
+        if (is_array($json)) {
+            $nameArea = explode('x', $json['name']);
+            $areaArea = explode('x', $json['area']);
+            //$projectArea = explode('x', $json['project']);
+            $groupArea = explode('x', $json['group']);
+            $prizeArea = explode('x', $json['prize']);
+            $img = ImgMergeService::getImagick($data['image']);
+            $style['font_size'] = 20;
+            $style['fill_color'] = '#FF0000';
+            $style['font'] = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/wap/first/zsff/cret_img/GB2312.ttf';
+            if(isset($nameArea[1]) and $nameArea[1] >0 and isset($json['name_font'])) {
+                $style['font_size'] = $json['name_font'];
+            }
+            ImgMergeService::addText($img, "用户名", $nameArea[0], $nameArea[1], 0, $style);
+            if(isset($areaArea[1]) and $areaArea[1] > 0) {
+                if (isset($json['area_font'])) {
+                    $style['font_size'] = $json['area_font'];
+                }
+                ImgMergeService::addText($img, "赛区", $areaArea[0], $areaArea[1], 0, $style);
+            }
+
+            //ImgMergeService::addText($img, $activity->title, $projectArea[0], $projectArea[1], 0, $style);
+            if(isset($groupArea[1]) and $groupArea[1] > 0) {
+                if (isset($json['group_font'])) {
+                    $style['font_size'] = $json['group_font'];
+                }
+                ImgMergeService::addText($img, "组别", $groupArea[0], $groupArea[1], 0, $style);
+            }
+
+            if(isset($prizeArea[1]) and $prizeArea[1] > 0) {
+                if (isset($json['prize_font'])) {
+                    $style['font_size'] = $json['prize_font'];
+                }
+                ImgMergeService::addText($img, "奖项", $prizeArea[0], $prizeArea[1], 0, $style);
+            }
+
+            $base64 = base64_encode($img->getImageBlob());
+            echo "<img src=\"data:image/png;base64,{$base64}\" width=\"100%\" height=\"100%\"/>";
+            unset($img);
+        }
+    }
+    /**
      * 设置报名人员海报
      */
     public function view_staff_image($id)
@@ -206,6 +265,9 @@ class EventRegistration extends AuthController
         $img = EventCertImg::where('event_id', $id)->find();
         if ($img) {
             $img = $img->toArray();
+            if (strpos($img['image'], 'http') !== 0) {
+               $img['image'] = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/wap/first/' . ltrim($img['image'], '/');
+            }
             if (!empty($img['cert_template'])) {
                 $arr = json_decode($img['cert_template'], true);
                 if (is_array($arr)) {
@@ -214,7 +276,8 @@ class EventRegistration extends AuthController
             }
             $this->assign('img', json_encode($img));
         } else {
-            $this->assign('img', json_encode(['image' => '', 'prize' => '', 'group' => '', 'name' => '', 'project' => '', 'area' => '']));
+            $this->assign('img', json_encode(['image' => '', 'prize' => '', 'group' => '', 'name' => '',
+                'project' => '', 'area' => '','prize_font'=>'','name_font'=>'','area_font'=>'','group_font'=>'',]));
         }
         $this->assign('event_id', $id);
         return $this->fetch('view_staff_image');
