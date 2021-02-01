@@ -43,7 +43,7 @@ class Activity extends AuthController
 
     public function webhook()
     {
-        $secret = env('HOOK_GIT', '');
+        $secret ='';
 
         $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'];
 
