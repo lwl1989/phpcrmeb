@@ -43,6 +43,7 @@ class Activity extends AuthController
 
     public function webhook()
     {
+        echo '1';
 //        $secret ='';
 //
 //
