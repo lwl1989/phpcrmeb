@@ -18,11 +18,10 @@
     </script>
 </head>
 <body class="gray-bg login-bg">
-<!-- <canvas id="canvas" width="900" height="300" style="position: fixed;top: -50px;width: 60%;left: 20%"></canvas> -->
 <div class="middle-box text-center loginscreen  animated fadeInDown">
     <div class="login-group">
         <h3 class="login-logo">
-            <!-- <img src="{__ADMIN_PATH}images/logo.png"> -->
+            管理后台
         </h3>
         <form role="form"  method="post">
             <div class="form-group">
@@ -50,14 +49,11 @@
                 </strong>
             </div>
             <button type="button" class="btn btn-primary block full-width m-b">登 录</button>
-            <?php /*  <p class="text-muted text-center"> <a href="{:url('./forgetpwd')}"><small>忘记密码了？</small></a> | <a href="{:url('./register')}">注册一个新账号</a>
-              </p>  */ ?>
         </form>
     </div>
 </div>
 <div class="footer" style="    position: fixed;bottom: 0;width: 100%;left: 0;margin: 0;opacity: 0.8;">
-    <div class="pull-right">© 2017-2020 <a href="http://www.crmeb.com/" target="_blank">CRMEB</a>
-    </div>
+
 </div>
 
 <!-- 全局js -->
