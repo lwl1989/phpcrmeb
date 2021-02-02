@@ -575,7 +575,7 @@ class Index extends AuthController
     }
 
     public function check_auth(){
-        return Json::succ('ok', $this->checkAuthDecrypt());
+        //eturn Json::succ('ok', $this->checkAuthDecrypt());
     }
     /**
      * @return mixed
