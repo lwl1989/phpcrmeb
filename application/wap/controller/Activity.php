@@ -174,7 +174,7 @@ class Activity extends AuthController
 
     public function index()
     {
-
+        echo 'webhook test';exit();
         return $this->fetch('activity_list');
     }
 
