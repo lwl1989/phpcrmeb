@@ -21,9 +21,9 @@
 <canvas id="canvas" width="900" height="300" style="position: fixed;top: -50px;width: 60%;left: 20%"></canvas>
 <div class="middle-box text-center loginscreen  animated fadeInDown">
     <div class="login-group">
-        <h3 class="login-logo">
+        <!-- <h3 class="login-logo">
             <img src="{__ADMIN_PATH}images/logo.png">
-        </h3>
+        </h3> -->
         <form role="form"  method="post">
             <div class="form-group">
                 <div class="input-group m-b"><span class="input-group-addon"><i class="fa fa-user"></i> </span>
